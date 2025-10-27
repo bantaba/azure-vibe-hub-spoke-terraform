@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Auto-Commit Task Completion",
+  "description": "Automatically stages and commits changes to the git repository when a task is marked as completed in the spec task files",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".kiro/specs/**/tasks.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A task file has been modified, likely indicating task completion or status updates. Please:\n\n1. Check if any tasks have been marked as completed\n2. If tasks were completed, automatically stage and commit the changes to the git repository\n3. Use an appropriate commit message that describes what was accomplished\n4. Include the task name and any relevant implementation details in the commit message\n5. Follow conventional commit format (feat:, fix:, docs:, etc.)\n6. Only commit if there are actual changes to stage\n\nPlease analyze the task file changes and determine if an auto-commit is appropriate. If so, stage all relevant files and create a meaningful commit message that reflects the completed work."
+  }
+}

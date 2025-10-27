@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Terraform Documentation Sync",
+  "description": "Monitors Terraform source files and related configuration files for changes and automatically updates project documentation in README and docs folder to keep them synchronized with code changes",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/*.tf",
+      "src/**/*.tf",
+      "scripts/*.ps1",
+      "scripts/**/*.ps1",
+      ".gitignore",
+      "terraform.tfvars",
+      "*.tfvars"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The Terraform infrastructure code has been modified. Please review the changes and update the documentation accordingly. Focus on:\n\n1. Update the main README.md if there are significant architectural changes\n2. Update relevant documentation in the /docs folder, particularly:\n   - docs/setup/ for configuration changes\n   - docs/operations/ for operational procedure updates\n   - docs/security/ for security-related modifications\n3. Ensure module documentation reflects any new or modified Terraform modules\n4. Update any references to variables, outputs, or resource configurations\n5. Maintain consistency with the project's security-first design and Azure best practices\n\nPlease analyze the specific files that changed and determine which documentation sections need updates to accurately reflect the current infrastructure state."
+  }
+}

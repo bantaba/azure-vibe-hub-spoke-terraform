@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Quick Commit Button",
+  "description": "Manual button to quickly stage and commit all current changes with an intelligent commit message",
+  "version": "1",
+  "when": {
+    "type": "manual"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Please perform a quick commit of all current changes. Use the smart commit script to:\n\n1. Stage all relevant files (excluding temporary files, logs, etc.)\n2. Generate an intelligent commit message based on the changes\n3. Commit the changes with proper conventional commit formatting\n4. Provide feedback on what was committed\n\nRun: `powershell -ExecutionPolicy Bypass -File scripts/git/smart-commit.ps1`\n\nThis should handle everything automatically with smart defaults."
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Smart Auto-Commit on Task Completion",
+  "description": "Intelligently detects task completion and automatically commits changes with smart commit messages based on the work performed",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".kiro/specs/**/tasks.md",
+      "security/**/*",
+      "scripts/**/*",
+      "src/**/*.tf",
+      "docs/**/*.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Files have been modified that may indicate task completion or significant work. Please use the smart commit functionality to:\n\n1. Analyze the changes using the smart-commit script at `scripts/git/smart-commit.ps1`\n2. Check if any tasks have been marked as completed in task files\n3. Determine if the changes represent a logical unit of work that should be committed\n4. If appropriate, automatically stage and commit the changes with an intelligent commit message\n5. Use conventional commit format and include relevant details about the work completed\n\nRun the smart commit script to handle the git operations intelligently. Only commit if the changes represent completed work or a logical checkpoint.\n\nExample usage: `powershell -ExecutionPolicy Bypass -File scripts/git/smart-commit.ps1`"
+  }
+}
