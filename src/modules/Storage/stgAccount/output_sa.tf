@@ -24,3 +24,21 @@ output "sa_blob_endpoint" {
     value = azurerm_storage_account.sa.primary_blob_endpoint
     sensitive = false
 }
+
+output "private_endpoint_id" {
+    description = "The ID of the private endpoint"
+    value = var.enable_private_endpoint ? azurerm_private_endpoint.sa_private_endpoint[0].id : null
+    sensitive = false
+}
+
+output "private_endpoint_ip" {
+    description = "The private IP address of the private endpoint"
+    value = var.enable_private_endpoint ? azurerm_private_endpoint.sa_private_endpoint[0].private_service_connection[0].private_ip_address : null
+    sensitive = false
+}
+
+output "public_network_access_enabled" {
+    description = "Whether public network access is enabled"
+    value = azurerm_storage_account.sa.public_network_access_enabled
+    sensitive = false
+}

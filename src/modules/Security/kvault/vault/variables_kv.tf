@@ -67,3 +67,82 @@ variable "tags" {
     type = map(string)
     description = "A mapping of tags to assign to the resource."
 }
+
+# Enhanced security variables
+variable "enable_rbac_authorization" {
+  type        = bool
+  default     = true
+  description = "Boolean flag to specify whether Azure Key Vault uses Role Based Access Control (RBAC) for authorization of data actions"
+}
+
+variable "enabled_for_deployment" {
+  type        = bool
+  default     = false
+  description = "Boolean flag to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault"
+}
+
+variable "enabled_for_disk_encryption" {
+  type        = bool
+  default     = true
+  description = "Boolean flag to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys"
+}
+
+variable "enabled_for_template_deployment" {
+  type        = bool
+  default     = false
+  description = "Boolean flag to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault"
+}
+
+variable "enable_private_endpoint" {
+  type        = bool
+  default     = false
+  description = "Enable private endpoint for the Key Vault"
+}
+
+variable "private_endpoint_subnet_id" {
+  type        = string
+  default     = null
+  description = "The subnet ID where the private endpoint will be created"
+}
+
+variable "private_dns_zone_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of private DNS zone IDs for the private endpoint"
+}
+
+variable "enable_diagnostic_settings" {
+  type        = bool
+  default     = true
+  description = "Enable diagnostic settings for Key Vault"
+}
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  default     = null
+  description = "The ID of the Log Analytics workspace to send diagnostics to"
+}
+
+variable "managed_identity_object_id" {
+  type        = string
+  default     = null
+  description = "The object ID of the managed identity to grant access to the Key Vault"
+}
+
+variable "managed_identity_key_permissions" {
+  type        = list(string)
+  default     = ["Get", "List", "Create", "Delete", "Update", "Recover", "Backup", "Restore"]
+  description = "List of key permissions to grant to the managed identity"
+}
+
+variable "managed_identity_secret_permissions" {
+  type        = list(string)
+  default     = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"]
+  description = "List of secret permissions to grant to the managed identity"
+}
+
+variable "managed_identity_certificate_permissions" {
+  type        = list(string)
+  default     = ["Get", "List", "Create", "Delete", "Update", "ManageContacts", "ManageIssuers"]
+  description = "List of certificate permissions to grant to the managed identity"
+}

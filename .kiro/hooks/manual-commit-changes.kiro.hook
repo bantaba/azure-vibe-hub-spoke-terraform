@@ -1,13 +1,13 @@
 {
-  "enabled": true,
-  "name": "Manual Commit Changes",
-  "description": "Manually triggered hook to stage and commit all current changes with an intelligent commit message based on the work performed",
-  "version": "1",
-  "when": {
-    "type": "manual"
-  },
-  "then": {
-    "type": "askAgent",
-    "prompt": "Please stage and commit all current changes to the git repository. Follow these steps:\n\n1. Check git status to see what files have been modified, added, or deleted\n2. Stage all relevant changes (exclude temporary files, logs, etc.)\n3. Generate an appropriate commit message based on the changes:\n   - Use conventional commit format (feat:, fix:, docs:, refactor:, etc.)\n   - Include a clear description of what was implemented or changed\n   - Reference any task numbers or requirements if applicable\n   - Keep the first line under 72 characters\n   - Add detailed description if needed\n4. Commit the changes with the generated message\n5. Confirm the commit was successful\n\nAnalyze the current changes and create a meaningful commit that accurately reflects the work performed."
-  }
+    "enabled": true,
+    "name": "Manual Commit Changes",
+    "description": "Manually triggered hook to stage and commit all current changes with an intelligent commit message based on the work performed",
+    "version": "1",
+    "when": {
+        "type": "manual"
+    },
+    "then": {
+        "type": "askAgent",
+        "prompt": "Please stage and commit all current changes to the git repository. Follow these steps:\n\n1. Check git status to see what files have been modified, added, or deleted\n2. Stage all relevant changes (exclude temporary files, logs, etc.)\n3. Generate an appropriate commit message based on the changes:\n   - Use conventional commit format (feat:, fix:, docs:, refactor:, etc.)\n   - Include a clear description of what was implemented or changed\n   - Reference any task numbers or requirements if applicable\n   - Keep the first line under 72 characters\n   - Add detailed description if needed\n4. Commit the changes with the generated message\n5. Confirm the commit was successful\n\nAnalyze the current changes and create a meaningful commit that accurately reflects the work performed."
+    }
 }

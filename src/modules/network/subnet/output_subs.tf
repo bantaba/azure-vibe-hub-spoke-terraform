@@ -23,3 +23,17 @@ output "list_of_subnet_ids" {
     for id in azurerm_subnet.PrivateSubs : id.id
   ]
 }
+
+output "route_table_ids" {
+  description = "Map of route table IDs"
+  value = var.enable_custom_routes ? {
+    for k, v in azurerm_route_table.subnet_routes : k => v.id
+  } : {}
+}
+
+output "subnet_address_prefixes" {
+  description = "Map of subnet address prefixes"
+  value = {
+    for k, v in azurerm_subnet.PrivateSubs : k => v.address_prefixes
+  }
+}

@@ -48,3 +48,61 @@ variable "law_resource_id" {
     type = string
     description = "The resource ID of the attached workspace."
 }
+
+# Enhanced security variables
+variable "flow_log_enabled" {
+    type = bool
+    default = true
+    description = "Enable or disable flow logging"
+}
+
+variable "flow_log_version" {
+    type = number
+    default = 2
+    description = "The version of the flow log format"
+    
+    validation {
+        condition = contains([1, 2], var.flow_log_version)
+        error_message = "Flow log version must be 1 or 2."
+    }
+}
+
+variable "flow_log_retention_days" {
+    type = number
+    default = 90
+    description = "Number of days to retain flow logs"
+    
+    validation {
+        condition = var.flow_log_retention_days >= 1 && var.flow_log_retention_days <= 365
+        error_message = "Flow log retention days must be between 1 and 365."
+    }
+}
+
+variable "flow_log_retention_enabled" {
+    type = bool
+    default = true
+    description = "Enable flow log retention policy"
+}
+
+variable "traffic_analytics_enabled" {
+    type = bool
+    default = true
+    description = "Enable traffic analytics"
+}
+
+variable "traffic_analytics_interval" {
+    type = number
+    default = 10
+    description = "Traffic analytics processing interval in minutes"
+    
+    validation {
+        condition = contains([10, 60], var.traffic_analytics_interval)
+        error_message = "Traffic analytics interval must be 10 or 60 minutes."
+    }
+}
+
+variable "enable_diagnostic_settings" {
+    type = bool
+    default = true
+    description = "Enable diagnostic settings for NSG"
+}

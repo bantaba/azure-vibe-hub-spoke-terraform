@@ -52,3 +52,14 @@ variable "tags" {
   type        = map(string)
   description = "A mapping of tags which should be assigned to the Resource Group."  
 }
+
+variable "location" {
+  type        = string
+  description = "The Azure region where resources will be created"
+}
+
+variable "enable_custom_routes" {
+  type        = bool
+  default     = true
+  description = "Enable custom route tables for subnets"
+}

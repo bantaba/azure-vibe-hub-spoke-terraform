@@ -158,3 +158,126 @@ variable "tags" {
   nullable = false
   description = "tags to be applied to resources"
 }
+
+# Enhanced security variables
+variable "public_network_access_enabled" {
+  description = "Whether the public network access is enabled"
+  type        = bool
+  default     = false
+  nullable    = false
+}
+
+variable "default_to_oauth_authentication" {
+  description = "Default to Azure Active Directory authorization in the Azure portal when accessing the Storage Account"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "shared_access_key_enabled" {
+  description = "Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key"
+  type        = bool
+  default     = false
+  nullable    = false
+}
+
+variable "network_rules_enabled" {
+  description = "Enable network access rules for the storage account"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "network_rules_default_action" {
+  description = "The default action of allow or deny when no other rules match"
+  type        = string
+  default     = "Deny"
+  nullable    = false
+  
+  validation {
+    condition     = contains(["Allow", "Deny"], var.network_rules_default_action)
+    error_message = "The network_rules_default_action must be either 'Allow' or 'Deny'."
+  }
+}
+
+variable "network_rules_bypass" {
+  description = "Specifies whether traffic is bypassed for Azure services"
+  type        = set(string)
+  default     = ["AzureServices", "Logging", "Metrics"]
+  nullable    = false
+  
+  validation {
+    condition = alltrue([
+      for bypass in var.network_rules_bypass : contains(["AzureServices", "Logging", "Metrics", "None"], bypass)
+    ])
+    error_message = "Valid values for network_rules_bypass are: AzureServices, Logging, Metrics, None."
+  }
+}
+
+variable "allowed_ip_ranges" {
+  description = "List of public IP or IP ranges in CIDR Format"
+  type        = list(string)
+  default     = []
+  nullable    = false
+}
+
+variable "allowed_subnet_ids" {
+  description = "A list of virtual network subnet ids to secure the storage account"
+  type        = list(string)
+  default     = []
+  nullable    = false
+}
+
+variable "blob_versioning_enabled" {
+  description = "Is versioning enabled for blobs"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "blob_change_feed_enabled" {
+  description = "Is the blob service properties for change feed events enabled"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "blob_last_access_time_enabled" {
+  description = "Is the last access time based tracking enabled"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "blob_delete_retention_days" {
+  description = "Retention days for deleted blobs. Valid value is between 1 and 365 (set to 0 to disable)"
+  type        = number
+  default     = 30
+  nullable    = false
+  
+  validation {
+    condition     = var.blob_delete_retention_days >= 0 && var.blob_delete_retention_days <= 365
+    error_message = "The blob_delete_retention_days must be between 0 and 365."
+  }
+}
+
+# Private endpoint variables
+variable "enable_private_endpoint" {
+  description = "Enable private endpoint for the storage account"
+  type        = bool
+  default     = false
+  nullable    = false
+}
+
+variable "private_endpoint_subnet_id" {
+  description = "The subnet ID where the private endpoint will be created"
+  type        = string
+  default     = null
+}
+
+variable "private_dns_zone_ids" {
+  description = "List of private DNS zone IDs for the private endpoint"
+  type        = list(string)
+  default     = []
+  nullable    = false
+}

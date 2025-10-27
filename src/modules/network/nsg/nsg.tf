@@ -6,7 +6,10 @@ resource "azurerm_network_security_group" "main-nsg" {
   name                = var.nsg_name
   location            = var.location
   resource_group_name = var.rg_name
-  tags                = var.tags
+  tags                = merge(var.tags, {
+    SecurityLevel = "Enhanced"
+    LastUpdated   = timestamp()
+  })
 }
 
 #NSG Rules all
@@ -42,18 +45,42 @@ resource "azurerm_network_watcher_flow_log" "watcher_flow_log" {
   resource_group_name = data.azurerm_network_watcher.NetworkWatcher_westus3.resource_group_name
   storage_account_id = var.storage_account_id
   network_security_group_id = azurerm_network_security_group.main-nsg.id
-  enabled = true
-  version = 2
+  enabled = var.flow_log_enabled
+  version = var.flow_log_version
+  
   retention_policy {
-    days = 30 
-    enabled = true
+    days = var.flow_log_retention_days
+    enabled = var.flow_log_retention_enabled
   }
 
   traffic_analytics {
-    enabled = true
-    interval_in_minutes = 10
+    enabled = var.traffic_analytics_enabled
+    interval_in_minutes = var.traffic_analytics_interval
     workspace_id = var.law_id
     workspace_region = var.location
     workspace_resource_id = var.law_resource_id
+  }
+  
+  tags = var.tags
+}
+
+# Additional security monitoring
+resource "azurerm_monitor_diagnostic_setting" "nsg_diagnostics" {
+  count              = var.enable_diagnostic_settings ? 1 : 0
+  name               = "${var.nsg_name}-diagnostics"
+  target_resource_id = azurerm_network_security_group.main-nsg.id
+  log_analytics_workspace_id = var.law_resource_id
+
+  enabled_log {
+    category = "NetworkSecurityGroupEvent"
+  }
+
+  enabled_log {
+    category = "NetworkSecurityGroupRuleCounter"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
   }
 }
