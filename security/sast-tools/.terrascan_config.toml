@@ -1,0 +1,91 @@
+# Terrascan Configuration for Azure Terraform Security Scanning
+# This configuration file defines OPA policies and scanning settings
+
+[scan]
+# Scan rules configuration
+iac-type = "terraform"
+iac-version = "v14"
+cloud-provider = ["azure"]
+
+# Policy configuration
+policy-type = ["opa"]
+policy-path = ["security/sast-tools/terrascan-policies/"]
+
+# Scan directories
+iac-dir = "src/"
+
+# Output configuration
+output = ["json", "sarif", "junit-xml"]
+output-dir = "security/reports/"
+
+# Verbose output
+verbose = true
+
+# Show passed rules
+show-passed = false
+
+# Use colors in output
+use-colors = true
+
+# Severity levels to include
+severity = ["high", "medium", "low"]
+
+# Skip rules (if needed)
+skip-rules = []
+
+# Categories to scan
+categories = [
+    "IDENTITY AND ACCESS MANAGEMENT",
+    "DATA PROTECTION", 
+    "LOGGING AND MONITORING",
+    "NETWORKING",
+    "RESILIENCE",
+    "ENCRYPTION"
+]
+
+# Notification configuration
+[notifications]
+# Webhook configuration (optional)
+# webhook-url = "https://your-webhook-url.com"
+# webhook-token = "your-webhook-token"
+
+# Config file for notifications
+# config-file = "security/sast-tools/terrascan-notifications.yaml"
+
+# Rules configuration
+[rules]
+# Skip specific rules if needed
+# skip-rules = ["AC_AZURE_0001", "AC_AZURE_0002"]
+
+# Include only specific rules
+# include-rules = ["AC_AZURE_0001", "AC_AZURE_0002"]
+
+# Server configuration (for server mode)
+[server]
+port = 9010
+host = "0.0.0.0"
+cert-path = ""
+private-key-path = ""
+log-level = "info"
+
+# K8s admission controller configuration
+[k8s-admission-control]
+denied-severity = "high"
+scan-rules = []
+skip-rules = []
+
+# Repository configuration
+[repository]
+# Git repository configuration for remote scanning
+# url = "https://github.com/your-org/your-repo.git"
+# branch = "main"
+# path = "terraform/"
+
+# Database configuration (for server mode)
+[database]
+# type = "postgres"
+# host = "localhost"
+# port = 5432
+# name = "terrascan"
+# user = "terrascan"
+# password = "terrascan"

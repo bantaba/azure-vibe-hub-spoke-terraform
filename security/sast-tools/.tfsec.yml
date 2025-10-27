@@ -1,0 +1,144 @@
+# TFSec Configuration for Azure Terraform Security Scanning
+# This configuration file defines Azure-specific security rules and settings
+
+# Severity levels to include
+severity_overrides:
+  # Azure Storage Account checks
+  azure-storage-default-action-deny: HIGH
+  azure-storage-use-secure-tls-policy: HIGH
+  azure-storage-queue-services-logging-enabled: MEDIUM
+  azure-storage-allow-blob-public-access: HIGH
+  
+  # Azure Key Vault checks
+  azure-keyvault-specify-network-acl: HIGH
+  azure-keyvault-ensure-key-expiry: MEDIUM
+  azure-keyvault-ensure-secret-expiry: MEDIUM
+  azure-keyvault-purge-protection-enabled: HIGH
+  
+  # Azure Network Security Group checks
+  azure-network-no-public-ingress: CRITICAL
+  azure-network-ssh-blocked-from-internet: CRITICAL
+  azure-network-rdp-blocked-from-internet: CRITICAL
+  azure-network-retention-policy-set: MEDIUM
+  
+  # Azure Virtual Machine checks
+  azure-compute-disable-password-authentication: HIGH
+  azure-compute-vm-agent-installed: MEDIUM
+  azure-compute-encrypted-disk: HIGH
+
+# Exclude specific checks (if needed)
+exclude:
+  # Uncomment to exclude specific checks
+  # - azure-storage-default-action-deny
+
+# Include specific directories
+include:
+  - src/
+
+# Exclude specific directories or files
+exclude_paths:
+  - .terraform/
+  - .git/
+  - "**/.terraform.lock.hcl"
+
+# Output format options: default, json, csv, checkstyle, junit, sarif
+format: json
+
+# Output file path
+output: security/reports/tfsec-report.json
+
+# Additional output formats
+additional_outputs:
+  - format: sarif
+    output: security/reports/tfsec-sarif.json
+  - format: junit
+    output: security/reports/tfsec-junit.xml
+
+# Minimum severity level to report
+minimum_severity: LOW
+
+# Soft fail mode (don't exit with error code)
+soft_fail: false
+
+# Force color output
+force_colour: true
+
+# Concise output
+concise_output: false
+
+# Include ignored checks in output
+include_ignored: true
+
+# Include passed checks in output
+include_passed: false
+
+# Custom checks directory
+custom_check_dir: security/sast-tools/tfsec-rules/
+
+# Statistics output
+statistics: true
+
+# Debug mode
+debug: false
+
+# Verbose output
+verbose: false
+
+# Run checks in parallel
+run_statistics: true
+
+# Configuration for specific Azure resources
+config_file_vars:
+  # Azure subscription and tenant information
+  azure_subscription_id: ""
+  azure_tenant_id: ""
+  
+  # Environment-specific variables
+  environment: "dev"
+  location: "East US"
+  
+  # Tagging requirements
+  required_tags:
+    - deployed_via
+    - owner
+    - Team
+    - Environment
+    - DeployedOn
+
+# Custom rules configuration
+rules:
+  # Storage Account rules
+  - id: CUSTOM_AZURE_001
+    description: "Ensure storage account uses customer-managed keys"
+    impact: "Data may not be encrypted with customer-controlled keys"
+    resolution: "Configure customer-managed key encryption"
+    severity: HIGH
+    
+  - id: CUSTOM_AZURE_002
+    description: "Ensure storage account has required tags"
+    impact: "Resources may not be properly tagged for governance"
+    resolution: "Add required tags to storage account"
+    severity: LOW
+    
+  # Key Vault rules
+  - id: CUSTOM_AZURE_003
+    description: "Ensure Key Vault access policies follow least privilege"
+    impact: "Excessive permissions may lead to security risks"
+    resolution: "Review and restrict Key Vault access policies"
+    severity: MEDIUM
+    
+  # Network Security Group rules
+  - id: CUSTOM_AZURE_004
+    description: "Ensure NSG rules are properly documented"
+    impact: "Undocumented rules may pose security risks"
+    resolution: "Add descriptions to all NSG rules"
+    severity: LOW
+
+# Terraform version constraints
+terraform_version: ">= 1.0"
+
+# Provider version constraints
+required_providers:
+  azurerm:
+    version: ">= 3.65, <= 3.68"
+    source: "hashicorp/azurerm"

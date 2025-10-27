@@ -1,0 +1,118 @@
+# Checkov Configuration for Azure Terraform Security Scanning
+# This configuration file defines Azure-specific security rules and policies
+
+# Framework configuration
+framework:
+  - terraform
+  - terraform_plan
+
+# Directory to scan (relative to project root)
+directory:
+  - src/
+
+# Output configuration
+output:
+  - cli
+  - json
+  - junit
+  - sarif
+
+# Output file paths
+output-file-path: security/reports/checkov-report.json
+junit-output-file-path: security/reports/checkov-junit.xml
+sarif-output-file-path: security/reports/checkov-sarif.json
+
+# Severity levels to include
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+  - LOW
+  - INFO
+
+# Azure-specific checks to enable
+check:
+  # Storage Account Security
+  - CKV_AZURE_33  # Ensure Storage Account is using the latest version of TLS encryption
+  - CKV_AZURE_35  # Ensure default network access rule for Storage Accounts is set to deny
+  - CKV_AZURE_36  # Ensure 'Trusted Microsoft Services' is enabled for Storage Account access
+  - CKV_AZURE_43  # Ensure Storage Accounts adhere to the naming rules
+  - CKV_AZURE_44  # Ensure Storage Account is using the latest version of TLS encryption
+  - CKV_AZURE_59  # Ensure that Storage accounts disallow public access
+  - CKV_AZURE_190 # Ensure that Storage blobs restrict public access
+
+  # Key Vault Security
+  - CKV_AZURE_40  # Ensure that the expiration date is set on all keys
+  - CKV_AZURE_41  # Ensure that the expiration date is set on all secrets
+  - CKV_AZURE_42  # Ensure the key vault is recoverable
+  - CKV_AZURE_109 # Ensure that key vault allows firewall rules settings
+  - CKV_AZURE_110 # Ensure that key vault enables purge protection
+  - CKV_AZURE_189 # Ensure that Azure Key Vault disables public network access
+
+  # Network Security Group Rules
+  - CKV_AZURE_9   # Ensure that Network Security Groups Rule does not have a source of 0.0.0.0/0
+  - CKV_AZURE_10  # Ensure that Network Security Groups Rule does not allow all traffic on SSH
+  - CKV_AZURE_11  # Ensure that Network Security Groups Rule does not allow all traffic on RDP
+  - CKV_AZURE_12  # Ensure that Network Security Groups Rule does not allow all traffic on HTTP
+  - CKV_AZURE_13  # Ensure that Network Security Groups Rule does not allow all traffic on HTTPS
+
+  # Virtual Machine Security
+  - CKV_AZURE_1   # Ensure Azure Instance does not use basic authentication(Use SSH Key Instead)
+  - CKV_AZURE_50  # Ensure Virtual Machine Extensions are not installed
+  - CKV_AZURE_149 # Ensure that Virtual machine does not enable password authentication
+  - CKV_AZURE_178 # Ensure linux VM enables SSH with keys for secure communication
+
+  # RBAC and Identity
+  - CKV_AZURE_74  # Ensure that Azure Active Directory Admin is configured
+  - CKV_AZURE_107 # Ensure that HTTP(S) access from the Internet is evaluated and restricted
+  - CKV_AZURE_111 # Ensure that Managed identity provider is enabled for app services
+
+  # Monitoring and Logging
+  - CKV_AZURE_37  # Ensure that 'Data encryption in transit' is set to 'On' for PostgreSQL Database Server
+  - CKV_AZURE_54  # Ensure that 'Auditing' is set to 'On' for SQL servers
+  - CKV_AZURE_92  # Ensure that Azure Batch account uses key vault to encrypt data
+
+# Checks to skip (if any specific checks cause issues)
+skip-check: []
+
+# Custom policies directory
+external-checks-dir: security/sast-tools/checkov-policies/
+
+# Quiet mode (reduce output verbosity)
+quiet: false
+
+# Compact output format
+compact: false
+
+# Download external modules
+download-external-modules: true
+
+# Evaluate variables
+evaluate-variables: true
+
+# Create guidelines for failed checks
+create-guidelines: true
+
+# Baseline file for comparison
+baseline: security/reports/checkov-baseline.json
+
+# Soft fail mode (don't exit with error code)
+soft-fail: false
+
+# Hard fail on specific severity levels
+hard-fail-on:
+  - CRITICAL
+  - HIGH
+
+# Prisma Cloud integration (if using Prisma Cloud)
+# prisma-api-url: https://api.prismacloud.io
+# bc-api-key: your-api-key
+
+# Custom CA bundle (if needed)
+# ca-certificate: /path/to/ca-bundle.crt
+
+# Repo ID for tracking
+repo-id: terraform-security-enhancement
+
+# Branch for tracking
+branch: main

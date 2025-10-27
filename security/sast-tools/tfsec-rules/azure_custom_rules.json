@@ -1,0 +1,143 @@
+{
+  "rules": [
+    {
+      "id": "CUSTOM_AZURE_001",
+      "description": "Ensure storage account uses customer-managed keys",
+      "impact": "Data may not be encrypted with customer-controlled keys",
+      "resolution": "Configure customer-managed key encryption for storage account",
+      "provider": "azure",
+      "service": "storage",
+      "severity": "HIGH",
+      "rule": {
+        "resource": "azurerm_storage_account",
+        "conditions": [
+          {
+            "path": "customer_managed_key",
+            "operator": "exists"
+          },
+          {
+            "path": "customer_managed_key.key_vault_key_id",
+            "operator": "not_empty"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CUSTOM_AZURE_002",
+      "description": "Ensure storage account has required project tags",
+      "impact": "Resources may not be properly tagged for governance and cost management",
+      "resolution": "Add required tags: deployed_via, owner, Team, Environment",
+      "provider": "azure",
+      "service": "storage",
+      "severity": "LOW",
+      "rule": {
+        "resource": "azurerm_storage_account",
+        "conditions": [
+          {
+            "path": "tags.deployed_via",
+            "operator": "exists"
+          },
+          {
+            "path": "tags.owner",
+            "operator": "exists"
+          },
+          {
+            "path": "tags.Team",
+            "operator": "exists"
+          },
+          {
+            "path": "tags.Environment",
+            "operator": "exists"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CUSTOM_AZURE_003",
+      "description": "Ensure Key Vault has network access restrictions",
+      "impact": "Key Vault may be accessible from unauthorized networks",
+      "resolution": "Configure network ACLs to restrict Key Vault access",
+      "provider": "azure",
+      "service": "keyvault",
+      "severity": "HIGH",
+      "rule": {
+        "resource": "azurerm_key_vault",
+        "conditions": [
+          {
+            "path": "network_acls",
+            "operator": "exists"
+          },
+          {
+            "path": "network_acls.default_action",
+            "operator": "equals",
+            "value": "Deny"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CUSTOM_AZURE_004",
+      "description": "Ensure NSG rules have proper descriptions",
+      "impact": "Undocumented network rules may pose security risks",
+      "resolution": "Add meaningful descriptions to all NSG rules",
+      "provider": "azure",
+      "service": "network",
+      "severity": "LOW",
+      "rule": {
+        "resource": "azurerm_network_security_rule",
+        "conditions": [
+          {
+            "path": "description",
+            "operator": "exists"
+          },
+          {
+            "path": "description",
+            "operator": "not_empty"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CUSTOM_AZURE_005",
+      "description": "Ensure Virtual Machine uses managed disks with encryption",
+      "impact": "VM disks may not be encrypted, exposing data at rest",
+      "resolution": "Enable disk encryption for all VM managed disks",
+      "provider": "azure",
+      "service": "compute",
+      "severity": "HIGH",
+      "rule": {
+        "resource": "azurerm_linux_virtual_machine",
+        "conditions": [
+          {
+            "path": "os_disk.encryption_set_id",
+            "operator": "exists"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CUSTOM_AZURE_006",
+      "description": "Ensure RBAC assignments follow least privilege principle",
+      "impact": "Excessive permissions may lead to security breaches",
+      "resolution": "Review and restrict role assignments to minimum required permissions",
+      "provider": "azure",
+      "service": "authorization",
+      "severity": "MEDIUM",
+      "rule": {
+        "resource": "azurerm_role_assignment",
+        "conditions": [
+          {
+            "path": "role_definition_name",
+            "operator": "not_equals",
+            "value": "Owner"
+          },
+          {
+            "path": "role_definition_name",
+            "operator": "not_equals",
+            "value": "Contributor"
+          }
+        ]
+      }
+    }
+  ]
+}
