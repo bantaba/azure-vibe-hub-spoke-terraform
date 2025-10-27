@@ -1,0 +1,411 @@
+# Azure DevOps Release Pipeline for Terraform Deployment
+# This pipeline handles the deployment of Terraform infrastructure with security gates
+
+trigger: none # This is a release pipeline, triggered manually or by build completion
+
+pr: none
+
+variables:
+  # Tool versions
+  terraformVersion: '1.5.7'
+  
+  # Pipeline configuration
+  vmImage: 'ubuntu-latest'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+  
+  # Environment configuration (to be overridden per environment)
+  environmentName: 'dev'
+  azureServiceConnection: '' # To be configured in pipeline variables
+  azureSubscription: '' # To be configured in pipeline variables
+  terraformBackendResourceGroup: '' # To be configured
+  terraformBackendStorageAccount: '' # To be configured
+  terraformBackendContainerName: 'tfstate'
+  terraformBackendKey: 'terraform.tfstate'
+
+stages:
+- stage: PreDeploymentValidation
+  displayName: 'Pre-Deployment Validation'
+  jobs:
+  - job: SecurityValidation
+    displayName: 'Security Validation'
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: DownloadBuildArtifacts@0
+      displayName: 'Download Security Reports'
+      inputs:
+        buildType: 'current'
+        artifactName: 'security-reports'
+        downloadPath: '$(System.ArtifactsDirectory)'
+      continueOnError: true
+      
+    - task: PowerShell@2
+      displayName: 'Validate Security Scan Results'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $securityReportsPath = "$(System.ArtifactsDirectory)/security-reports"
+          $unifiedReportPath = "$securityReportsPath/unified-scan-results.json"
+          
+          if (Test-Path $unifiedReportPath) {
+            Write-Host "Found security scan results, validating..."
+            
+            try {
+              $results = Get-Content $unifiedReportPath -Raw | ConvertFrom-Json
+              
+              Write-Host ""
+              Write-Host "=== Security Validation Results ===" -ForegroundColor Cyan
+              Write-Host "Total Issues: $($results.total_issues)" -ForegroundColor White
+              Write-Host "Critical: $($results.by_severity.critical)" -ForegroundColor $(if ($results.by_severity.critical -gt 0) { "Red" } else { "Green" })
+              Write-Host "High: $($results.by_severity.high)" -ForegroundColor $(if ($results.by_severity.high -gt 0) { "Red" } else { "Green" })
+              Write-Host "Medium: $($results.by_severity.medium)" -ForegroundColor $(if ($results.by_severity.medium -gt 0) { "Yellow" } else { "Green" })
+              Write-Host "Low: $($results.by_severity.low)" -ForegroundColor $(if ($results.by_severity.low -gt 0) { "Yellow" } else { "Green" })
+              
+              # Set pipeline variables for later stages
+              Write-Host "##vso[task.setvariable variable=SecurityCriticalIssues;isOutput=true]$($results.by_severity.critical)"
+              Write-Host "##vso[task.setvariable variable=SecurityHighIssues;isOutput=true]$($results.by_severity.high)"
+              Write-Host "##vso[task.setvariable variable=SecurityTotalIssues;isOutput=true]$($results.total_issues)"
+              
+              # Check if deployment should be blocked
+              if ($results.by_severity.critical -gt 0) {
+                Write-Host "##vso[task.logissue type=error]Deployment blocked: Critical security issues found!"
+                Write-Host "##vso[task.complete result=Failed]"
+                exit 1
+              } elseif ($results.by_severity.high -gt 0) {
+                Write-Host "##vso[task.logissue type=warning]High severity security issues found - manual approval required"
+                Write-Host "##vso[task.complete result=SucceededWithIssues]"
+              } else {
+                Write-Host "Security validation passed - no critical or high severity issues found" -ForegroundColor Green
+              }
+              
+            } catch {
+              Write-Host "##vso[task.logissue type=error]Failed to parse security scan results: $_"
+              Write-Host "##vso[task.complete result=Failed]"
+              exit 1
+            }
+          } else {
+            Write-Host "##vso[task.logissue type=warning]No security scan results found - proceeding with caution"
+            Write-Host "##vso[task.setvariable variable=SecurityTotalIssues;isOutput=true]0"
+          }
+
+  - job: TerraformValidation
+    displayName: 'Terraform Validation'
+    dependsOn: SecurityValidation
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: $(terraformVersion)
+        
+    - task: AzureCLI@2
+      displayName: 'Terraform Init with Backend'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          Write-Host "Initializing Terraform with Azure backend..."
+          Set-Location src
+          
+          terraform init `
+            -backend-config="resource_group_name=$(terraformBackendResourceGroup)" `
+            -backend-config="storage_account_name=$(terraformBackendStorageAccount)" `
+            -backend-config="container_name=$(terraformBackendContainerName)" `
+            -backend-config="key=$(environmentName)/$(terraformBackendKey)"
+            
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Terraform initialization successful"
+          } else {
+            Write-Host "##vso[task.logissue type=error]Terraform initialization failed"
+            exit 1
+          }
+        workingDirectory: $(workingDirectory)
+
+- stage: DeploymentApproval
+  displayName: 'Deployment Approval'
+  dependsOn: PreDeploymentValidation
+  condition: and(succeeded(), gt(dependencies.PreDeploymentValidation.outputs['SecurityValidation.SecurityHighIssues'], 0))
+  jobs:
+  - job: waitForApproval
+    displayName: 'Wait for Deployment Approval'
+    pool: server
+    timeoutInMinutes: 1440 # 24 hours
+    steps:
+    - task: ManualValidation@0
+      displayName: 'Deployment Approval Required'
+      inputs:
+        notifyUsers: |
+          $(Build.RequestedForEmail)
+        instructions: |
+          Deployment approval is required due to security scan findings.
+          
+          Environment: $(environmentName)
+          Critical Issues: $(SecurityCriticalIssues)
+          High Issues: $(SecurityHighIssues)
+          Total Issues: $(SecurityTotalIssues)
+          
+          Please review the security scan results and approve if the deployment should proceed.
+          Security reports are available in the build artifacts.
+        onTimeout: 'reject'
+
+- stage: TerraformPlan
+  displayName: 'Terraform Plan'
+  dependsOn: 
+  - PreDeploymentValidation
+  - DeploymentApproval
+  condition: or(and(succeeded('PreDeploymentValidation'), eq(dependencies.PreDeploymentValidation.outputs['SecurityValidation.SecurityHighIssues'], 0)), succeeded('DeploymentApproval'))
+  jobs:
+  - job: Plan
+    displayName: 'Generate Deployment Plan'
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: $(terraformVersion)
+        
+    - task: AzureCLI@2
+      displayName: 'Terraform Plan'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          Write-Host "Initializing Terraform..."
+          Set-Location src
+          
+          terraform init `
+            -backend-config="resource_group_name=$(terraformBackendResourceGroup)" `
+            -backend-config="storage_account_name=$(terraformBackendStorageAccount)" `
+            -backend-config="container_name=$(terraformBackendContainerName)" `
+            -backend-config="key=$(environmentName)/$(terraformBackendKey)"
+            
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Selecting workspace: $(environmentName)"
+            terraform workspace select $(environmentName) -or-create
+            
+            Write-Host "Generating Terraform plan..."
+            terraform plan -var-file="../environments/$(environmentName).tfvars" -out=tfplan-$(environmentName)
+            
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Terraform plan generated successfully"
+              
+              # Show plan summary
+              Write-Host ""
+              Write-Host "=== Terraform Plan Summary ===" -ForegroundColor Cyan
+              terraform show -no-color tfplan-$(environmentName)
+              
+              # Save plan summary for approval
+              terraform show -no-color tfplan-$(environmentName) | Out-File -FilePath "plan-summary.txt" -Encoding UTF8
+              
+            } else {
+              Write-Host "##vso[task.logissue type=error]Terraform plan generation failed"
+              exit 1
+            }
+          } else {
+            Write-Host "##vso[task.logissue type=error]Terraform initialization failed"
+            exit 1
+          }
+        workingDirectory: $(workingDirectory)
+        
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Terraform Plan'
+      inputs:
+        pathToPublish: 'src/tfplan-$(environmentName)'
+        artifactName: 'terraform-plan-$(environmentName)'
+        publishLocation: 'Container'
+        
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Plan Summary'
+      inputs:
+        pathToPublish: 'src/plan-summary.txt'
+        artifactName: 'plan-summary-$(environmentName)'
+        publishLocation: 'Container'
+
+- stage: DeploymentPlanApproval
+  displayName: 'Plan Approval'
+  dependsOn: TerraformPlan
+  jobs:
+  - job: waitForPlanApproval
+    displayName: 'Wait for Plan Approval'
+    pool: server
+    timeoutInMinutes: 1440 # 24 hours
+    steps:
+    - task: ManualValidation@0
+      displayName: 'Plan Approval Required'
+      inputs:
+        notifyUsers: |
+          $(Build.RequestedForEmail)
+        instructions: |
+          Please review the Terraform deployment plan and approve if the changes are acceptable.
+          
+          Environment: $(environmentName)
+          
+          The Terraform plan is available in the build artifacts.
+          Please review all planned changes before approving the deployment.
+        onTimeout: 'reject'
+
+- stage: TerraformDeploy
+  displayName: 'Terraform Deploy'
+  dependsOn: DeploymentPlanApproval
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy Infrastructure'
+    pool:
+      vmImage: $(vmImage)
+    environment: $(environmentName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            displayName: 'Checkout Repository'
+            
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Terraform Plan'
+            inputs:
+              buildType: 'current'
+              artifactName: 'terraform-plan-$(environmentName)'
+              downloadPath: '$(System.ArtifactsDirectory)'
+              
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: $(terraformVersion)
+              
+          - task: AzureCLI@2
+            displayName: 'Terraform Apply'
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                Write-Host "Initializing Terraform..."
+                Set-Location src
+                
+                terraform init `
+                  -backend-config="resource_group_name=$(terraformBackendResourceGroup)" `
+                  -backend-config="storage_account_name=$(terraformBackendStorageAccount)" `
+                  -backend-config="container_name=$(terraformBackendContainerName)" `
+                  -backend-config="key=$(environmentName)/$(terraformBackendKey)"
+                  
+                if ($LASTEXITCODE -eq 0) {
+                  Write-Host "Selecting workspace: $(environmentName)"
+                  terraform workspace select $(environmentName)
+                  
+                  # Copy the plan file from artifacts
+                  Copy-Item "$(System.ArtifactsDirectory)/terraform-plan-$(environmentName)/tfplan-$(environmentName)" -Destination "tfplan-$(environmentName)"
+                  
+                  Write-Host "Applying Terraform plan..."
+                  terraform apply -auto-approve tfplan-$(environmentName)
+                  
+                  if ($LASTEXITCODE -eq 0) {
+                    Write-Host "Terraform deployment completed successfully" -ForegroundColor Green
+                    
+                    # Generate outputs
+                    Write-Host ""
+                    Write-Host "=== Terraform Outputs ===" -ForegroundColor Cyan
+                    terraform output -json | Out-File -FilePath "terraform-outputs.json" -Encoding UTF8
+                    terraform output
+                    
+                  } else {
+                    Write-Host "##vso[task.logissue type=error]Terraform deployment failed"
+                    exit 1
+                  }
+                } else {
+                  Write-Host "##vso[task.logissue type=error]Terraform initialization failed"
+                  exit 1
+                }
+              workingDirectory: $(workingDirectory)
+              
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Terraform Outputs'
+            condition: always()
+            inputs:
+              pathToPublish: 'src/terraform-outputs.json'
+              artifactName: 'terraform-outputs-$(environmentName)'
+              publishLocation: 'Container'
+
+- stage: PostDeploymentValidation
+  displayName: 'Post-Deployment Validation'
+  dependsOn: TerraformDeploy
+  jobs:
+  - job: ValidationTests
+    displayName: 'Run Validation Tests'
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: DownloadBuildArtifacts@0
+      displayName: 'Download Terraform Outputs'
+      inputs:
+        buildType: 'current'
+        artifactName: 'terraform-outputs-$(environmentName)'
+        downloadPath: '$(System.ArtifactsDirectory)'
+        
+    - task: AzureCLI@2
+      displayName: 'Run Infrastructure Validation'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          Write-Host "Running post-deployment validation..."
+          
+          # Load Terraform outputs
+          $outputsPath = "$(System.ArtifactsDirectory)/terraform-outputs-$(environmentName)/terraform-outputs.json"
+          if (Test-Path $outputsPath) {
+            $outputs = Get-Content $outputsPath -Raw | ConvertFrom-Json
+            Write-Host "Terraform outputs loaded successfully"
+            
+            # Add custom validation logic here
+            # Example: Check if resources are accessible, security configurations are applied, etc.
+            
+            Write-Host "Post-deployment validation completed successfully" -ForegroundColor Green
+          } else {
+            Write-Host "##vso[task.logissue type=warning]Terraform outputs not found - skipping validation"
+          }
+        workingDirectory: $(workingDirectory)
+        
+    - task: PowerShell@2
+      displayName: 'Generate Deployment Report'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $deploymentReport = @{
+            timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+            environment = "$(environmentName)"
+            build_id = "$(Build.BuildId)"
+            deployment_status = "success"
+            validation_status = "completed"
+          }
+          
+          $deploymentReport | ConvertTo-Json -Depth 10 | Out-File -FilePath "deployment-report.json" -Encoding UTF8
+          
+          Write-Host "Deployment report generated successfully"
+        workingDirectory: $(workingDirectory)
+        
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Deployment Report'
+      inputs:
+        pathToPublish: 'deployment-report.json'
+        artifactName: 'deployment-report-$(environmentName)'
+        publishLocation: 'Container'

@@ -1,0 +1,93 @@
+#!/bin/sh
+# Git Pre-commit Hook
+# This hook runs security scans and validation checks before allowing commits
+
+# Check if we're on Windows and PowerShell is available
+if command -v pwsh >/dev/null 2>&1; then
+    # Use PowerShell Core (cross-platform)
+    exec pwsh -ExecutionPolicy Bypass -File "scripts/git/pre-commit-hook.ps1" "$@"
+elif command -v powershell >/dev/null 2>&1; then
+    # Use Windows PowerShell
+    exec powershell -ExecutionPolicy Bypass -File "scripts/git/pre-commit-hook.ps1" "$@"
+else
+    echo "PowerShell not found. Running basic validation..."
+    
+    # Basic validation without PowerShell
+    echo "=== Basic Pre-commit Validation ==="
+    
+    # Check for Terraform files
+    staged_tf_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(tf|tfvars)$' | grep '^src/' || true)
+    
+    if [ -z "$staged_tf_files" ]; then
+        echo "No Terraform files staged for commit."
+        exit 0
+    fi
+    
+    echo "Found staged Terraform files:"
+    echo "$staged_tf_files" | sed 's/^/  - /'
+    
+    # Check for Terraform binary
+    if ! command -v terraform >/dev/null 2>&1; then
+        echo "❌ Terraform not found. Please install Terraform."
+        exit 1
+    fi
+    
+    # Run Terraform format check
+    echo ""
+    echo "=== Terraform Format Check ==="
+    if terraform fmt -check -recursive src/; then
+        echo "✅ All Terraform files are properly formatted"
+    else
+        echo "❌ Terraform files are not properly formatted"
+        echo "Run 'terraform fmt -recursive src/' to fix formatting issues"
+        exit 1
+    fi
+    
+    # Run Terraform validation
+    echo ""
+    echo "=== Terraform Validation ==="
+    cd src || exit 1
+    
+    if terraform init -backend=false >/dev/null 2>&1; then
+        if terraform validate >/dev/null 2>&1; then
+            echo "✅ Terraform validation passed"
+        else
+            echo "❌ Terraform validation failed"
+            terraform validate
+            exit 1
+        fi
+    else
+        echo "❌ Terraform initialization failed"
+        terraform init -backend=false
+        exit 1
+    fi
+    
+    cd ..
+    
+    # Check for sensitive data patterns
+    echo ""
+    echo "=== Sensitive Data Check ==="
+    sensitive_found=false
+    
+    for file in $staged_tf_files; do
+        if [ -f "$file" ]; then
+            # Check for common sensitive data patterns
+            if grep -qE "(password|secret|api_key|access_key|private_key|token|connection_string)\s*=\s*[\"'][^\"']+[\"']" "$file"; then
+                echo "❌ Potential sensitive data found in $file"
+                sensitive_found=true
+            fi
+        fi
+    done
+    
+    if [ "$sensitive_found" = true ]; then
+        echo "❌ Sensitive data detected in staged files!"
+        echo "Please remove hardcoded secrets and use Azure Key Vault or variables instead"
+        exit 1
+    else
+        echo "✅ No sensitive data detected"
+    fi
+    
+    echo ""
+    echo "✅ Basic pre-commit validation passed"
+    echo "Note: Install PowerShell for enhanced security scanning"
+fi

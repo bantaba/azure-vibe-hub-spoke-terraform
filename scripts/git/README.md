@@ -1,259 +1,314 @@
-# Git Automation System
+# Git Hooks for Terraform Security
 
-This directory contains PowerShell scripts for automated git operations with intelligent commit message generation, file analysis, and task completion detection.
+This directory contains git hooks and related scripts for automated Terraform security validation and code quality checks.
+
+## Overview
+
+The git hooks system provides automated validation before commits to ensure:
+- Terraform code is properly formatted
+- Terraform configuration is valid
+- No sensitive data is committed
+- Security best practices are followed
+- File size limits are respected
 
 ## Files
 
-- **`auto-commit.ps1`** - Core auto-commit script with git operations and error handling
-- **`auto-commit-wrapper.ps1`** - Wrapper functions with task completion detection and commit templates
-- **`commit-task.ps1`** - Simple command-line interface for committing completed tasks
-- **`smart-commit.ps1`** - Advanced intelligent commit tool with file pattern analysis and automated message generation
+### Hook Scripts
+- `pre-commit` - Main git pre-commit hook (shell script)
+- `pre-commit-hook.ps1` - PowerShell implementation of pre-commit validation
 
-## Usage
+### Management Scripts
+- `install-hooks.ps1` - Install git hooks
+- `uninstall-hooks.ps1` - Remove git hooks
+- `configure-hooks.ps1` - Configure hook behavior
 
-### Smart Commit Tool (Recommended)
+### Documentation
+- `README.md` - This file
 
-```powershell
-# Intelligent commit with auto-generated message
-.\smart-commit.ps1
+## Installation
 
-# Interactive mode with confirmation
-.\smart-commit.ps1 -Interactive
-
-# Dry run to preview changes
-.\smart-commit.ps1 -DryRun
-
-# Custom commit message
-.\smart-commit.ps1 -CommitMessage "feat: implement new security features"
-
-# Include only specific file patterns
-.\smart-commit.ps1 -IncludePatterns @("*.tf", "*.ps1")
-
-# Exclude additional patterns
-.\smart-commit.ps1 -ExcludePatterns @("*.log", "temp/*")
-```
-
-### Quick Start (Legacy)
+### Quick Installation
 
 ```powershell
-# Commit a completed task with auto-detection
-.\commit-task.ps1 -TaskName "Create auto-commit PowerShell script" -TaskId "2.1"
-
-# Dry run to see what would be committed
-.\commit-task.ps1 -TaskName "Configure Checkov" -TaskId "3.1" -DryRun
-
-# Force commit without validation
-.\commit-task.ps1 -TaskName "Fix configuration" -Force
+# Install hooks with default settings
+.\scripts\git\install-hooks.ps1
 ```
 
-### Advanced Usage
+### Installation Options
 
 ```powershell
-# Use specific task type
-.\commit-task.ps1 -TaskName "Update Terraform modules" -TaskType "terraform" -TaskId "4.1"
+# Force installation (overwrite existing hooks)
+.\scripts\git\install-hooks.ps1 -Force
 
-# Add additional description
-.\commit-task.ps1 -TaskName "Setup SAST tools" -TaskType "sast" -Description "Configured Checkov, TFSec, and Terrascan"
+# Verbose output during installation
+.\scripts\git\install-hooks.ps1 -Verbose
 ```
-
-## Smart Commit Features
-
-The `smart-commit.ps1` script provides advanced automation with:
-
-### Intelligent File Analysis
-- **Pattern Recognition** - Automatically detects file types and changes
-- **Content Analysis** - Analyzes file content to determine commit type
-- **Change Classification** - Categorizes changes as features, fixes, docs, config, etc.
-- **File Filtering** - Smart exclusion of temporary files, logs, and build artifacts
-
-### Automated Message Generation
-- **Conventional Commits** - Generates messages following conventional commit format
-- **Context-Aware** - Creates messages based on actual file changes
-- **Task Integration** - Detects task-related changes and references
-- **Multi-line Support** - Generates detailed commit bodies with file summaries
-
-### Advanced Options
-- **Dry Run Mode** - Preview commits without executing
-- **Interactive Mode** - Confirm changes before committing
-- **Custom Patterns** - Include/exclude specific file patterns
-- **Flexible Messaging** - Override auto-generated messages when needed
-
-### File Pattern Detection
-
-The smart commit tool automatically detects:
-- **New Features** - New `.tf`, `.ps1`, `.py`, `.js`, `.ts` files
-- **Documentation** - Changes to `.md`, `.txt`, `.rst` files
-- **Configuration** - Updates to `.yaml`, `.yml`, `.json`, `.toml` files
-- **Tests** - Modifications to test files and directories
-- **Security** - Changes in security-related directories and files
-
-## Task Types
-
-The system automatically detects task types based on keywords in the task name:
-
-- **setup** - Project initialization and structure setup
-- **security** - Security enhancements and implementations
-- **sast** - SAST tool integration and configuration
-- **cicd** - CI/CD pipeline implementation
-- **terraform** - Terraform infrastructure improvements
-- **docs** - Documentation updates
-- **test** - Testing and validation
-- **fix** - Bug fixes and issue resolution
-- **refactor** - Code refactoring and optimization
-
-## Commit Message Format
-
-The system generates standardized commit messages following conventional commit format:
-
-```
-type(scope): task description
-
-Detailed description with context
-Additional information about changes
-
-Timestamp: 2024-01-01 12:00:00
-Task-ID: 2.1
-Task Type: security
-Files changed: 3
-Changed files:
-  A+ scripts/git/auto-commit.ps1
-  M  scripts/git/README.md
-  ?? logs/auto-commit.log
-```
-
-## Task Completion Detection
-
-The wrapper functions include intelligent task completion detection:
-
-### File-based Detection
-- Checks for expected file types based on task type
-- Validates that relevant files have been modified
-- Ensures changes align with task requirements
-
-### Pattern-based Detection
-- Searches for required code patterns in changed files
-- Validates Terraform syntax for infrastructure tasks
-- Checks configuration formats for SAST tasks
-
-### Override Options
-- Use `-Force` to skip completion validation
-- Use `-DryRun` to preview commits without executing
-
-## Error Handling
-
-The system includes comprehensive error handling:
-
-- **Retry Logic** - Automatic retry with exponential backoff for transient failures
-- **Validation** - Pre-commit validation of git repository state
-- **Logging** - Detailed logging to console and file (if logs directory exists)
-- **Rollback** - Safe failure handling without corrupting git history
 
 ## Configuration
 
-### Task Templates
-
-Task templates are defined in `auto-commit-wrapper.ps1` and can be customized:
+### Interactive Configuration
 
 ```powershell
-$Global:TaskTemplates = @{
-    "security" = @{
-        "type" = "security"
-        "description" = "Security enhancement implementation"
+# Launch interactive configuration wizard
+.\scripts\git\configure-hooks.ps1 -Interactive
+```
+
+### View Current Configuration
+
+```powershell
+# Display current hook settings
+.\scripts\git\configure-hooks.ps1 -ShowCurrent
+```
+
+### Manual Configuration
+
+Edit the configuration file directly:
+```
+.git/hooks/config.json
+```
+
+## Usage
+
+### Automatic Execution
+
+Once installed, the pre-commit hook runs automatically before each commit:
+
+```bash
+git add .
+git commit -m "Your commit message"
+# Hook runs automatically here
+```
+
+### Manual Execution
+
+Run the hook manually to test changes:
+
+```bash
+# Run pre-commit hook manually
+.git/hooks/pre-commit
+
+# Or run the PowerShell script directly
+pwsh scripts/git/pre-commit-hook.ps1
+```
+
+### Skipping Hooks
+
+Temporarily skip hooks when needed:
+
+```bash
+# Skip all pre-commit hooks
+git commit --no-verify -m "Emergency commit"
+```
+
+## Hook Features
+
+### Terraform Format Check
+- Validates that all Terraform files are properly formatted
+- Suggests running `terraform fmt` to fix issues
+- **Blocks commit** if formatting issues are found
+
+### Terraform Validation
+- Initializes Terraform (without backend)
+- Validates Terraform configuration syntax
+- **Blocks commit** if validation fails
+
+### Sensitive Data Detection
+- Scans for hardcoded passwords, secrets, API keys
+- Uses configurable regex patterns
+- **Blocks commit** if sensitive data is detected
+
+### File Size Limits
+- Checks for oversized files (default: 1MB)
+- Suggests using Git LFS for large files
+- **Warning only** - does not block commits
+
+### Security Scanning
+- Runs quick security scans with available tools
+- Supports Checkov, TFSec, and Terrascan
+- **Warning only** - does not block commits
+- Suggests running full security scan for detailed analysis
+
+## Configuration Options
+
+### Pre-commit Hook Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `true` | Enable/disable the pre-commit hook |
+| `skipSecurity` | `false` | Skip security scanning |
+| `skipFormat` | `false` | Skip Terraform format check |
+| `skipValidation` | `false` | Skip Terraform validation |
+| `skipSensitiveData` | `false` | Skip sensitive data detection |
+| `skipFileSize` | `false` | Skip file size check |
+| `verbose` | `false` | Enable verbose output |
+| `maxFileSize` | `1048576` | Maximum file size in bytes (1MB) |
+
+### Security Tools Configuration
+
+Each security tool can be individually configured:
+
+```json
+{
+  "securityTools": {
+    "checkov": {
+      "enabled": true,
+      "timeout": 60,
+      "args": ["--quiet", "--compact"]
+    },
+    "tfsec": {
+      "enabled": true,
+      "timeout": 30,
+      "args": ["--no-color", "--concise-output"]
+    },
+    "terrascan": {
+      "enabled": true,
+      "timeout": 60,
+      "args": ["--non-recursive", "--verbose"]
     }
-    # Add custom templates here
+  }
 }
 ```
 
-### Logging
+### Sensitive Data Patterns
 
-Create a `logs` directory in the project root to enable file logging:
+Customize patterns for sensitive data detection:
 
-```powershell
-mkdir logs
+```json
+{
+  "sensitivePatterns": [
+    {
+      "pattern": "password\\s*=\\s*[\"'][^\"']+[\"']",
+      "description": "Hardcoded password"
+    },
+    {
+      "pattern": "secret\\s*=\\s*[\"'][^\"']+[\"']",
+      "description": "Hardcoded secret"
+    }
+  ]
+}
 ```
 
-Log files will be created at `logs/auto-commit.log`.
+## Prerequisites
 
-## Integration with Task Management
+### Required Tools
+- **Git** - Version control system
+- **PowerShell** - For enhanced functionality (PowerShell Core recommended)
+- **Terraform** - For format checking and validation
 
-The auto-commit system is designed to integrate with the Terraform Security Enhancement project tasks:
+### Optional Tools (for security scanning)
+- **Checkov** - Infrastructure as Code security scanner
+- **TFSec** - Terraform security scanner
+- **Terrascan** - Policy as Code security validation
 
-1. **Task Execution** - Run tasks from the implementation plan
-2. **Completion Detection** - System validates task completion
-3. **Auto-Commit** - Automatically commits changes with standardized messages
-4. **Progress Tracking** - Maintains detailed commit history for audit trails
-
-## Examples
-
-### Smart Commit Examples
-
+Install security tools using:
 ```powershell
-# Automatic commit with intelligent message generation
-.\smart-commit.ps1
-# Output: "feat: implement security enhancements and update tasks"
-
-# Preview changes before committing
-.\smart-commit.ps1 -DryRun
-# Shows what would be committed without executing
-
-# Interactive confirmation
-.\smart-commit.ps1 -Interactive
-# Prompts for confirmation before committing
-
-# Commit only Terraform files
-.\smart-commit.ps1 -IncludePatterns @("*.tf", "*.tfvars")
-
-# Exclude specific directories
-.\smart-commit.ps1 -ExcludePatterns @("logs/*", "temp/*", "*.backup")
-```
-
-### Legacy Task Examples
-
-```powershell
-# After implementing security enhancements
-.\commit-task.ps1 -TaskName "Improve storage account security" -TaskId "4.1" -TaskType "security"
-
-# After configuring Checkov
-.\commit-task.ps1 -TaskName "Install and configure Checkov" -TaskId "3.1" -TaskType "sast"
-
-# After updating documentation
-.\commit-task.ps1 -TaskName "Create security improvements documentation" -TaskId "7.1" -TaskType "docs"
+.\scripts\security\install-all-sast-tools.ps1
 ```
 
 ## Troubleshooting
 
-### Common Issues
+### Hook Not Running
+1. Check if hook is installed: `ls -la .git/hooks/pre-commit`
+2. Verify hook is executable (Unix/Linux): `chmod +x .git/hooks/pre-commit`
+3. Test hook manually: `.git/hooks/pre-commit`
 
-1. **Not in git repository**
-   - Ensure you're running the script from the project root
-   - Initialize git repository if needed: `git init`
-
-2. **No changes detected**
-   - Verify files have been modified
-   - Check git status: `git status`
-   - Use `-Force` to override if needed
-
-3. **Task completion validation fails**
-   - Review expected files for the task type
-   - Ensure changes match task requirements
-   - Use `-Force` to skip validation
-
-4. **Commit message too long**
-   - The system handles multi-line messages automatically
-   - Long descriptions are properly formatted
-
-### Debug Mode
-
-Enable verbose output by setting:
+### PowerShell Execution Policy
+If you encounter execution policy errors:
 
 ```powershell
-$VerbosePreference = "Continue"
+# Set execution policy for current user
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Or run with bypass
+pwsh -ExecutionPolicy Bypass -File scripts/git/pre-commit-hook.ps1
 ```
 
-## Best Practices
+### Terraform Not Found
+1. Install Terraform from [terraform.io](https://terraform.io)
+2. Ensure Terraform is in your PATH
+3. Test: `terraform version`
 
-1. **Consistent Task Naming** - Use clear, descriptive task names
-2. **Proper Task IDs** - Include task IDs from the implementation plan
-3. **Incremental Commits** - Commit after each completed task
-4. **Validation** - Let the system validate task completion when possible
-5. **Documentation** - Include additional descriptions for complex changes
+### Security Tools Not Found
+1. Install tools using the provided scripts
+2. Or disable security scanning: `configure-hooks.ps1 -Interactive`
+3. Or skip security checks: `git commit --no-verify`
+
+### Hook Fails on Large Repositories
+1. Increase timeouts in configuration
+2. Skip security scanning for large commits
+3. Use `--no-verify` for emergency commits
+
+## Uninstallation
+
+### Remove Hooks
+
+```powershell
+# Remove all installed hooks
+.\scripts\git\uninstall-hooks.ps1
+
+# Force removal without prompts
+.\scripts\git\uninstall-hooks.ps1 -Force
+
+# Keep backup files
+.\scripts\git\uninstall-hooks.ps1 -KeepBackups
+```
+
+### Clean Removal
+
+```powershell
+# Remove hooks and all backups
+.\scripts\git\uninstall-hooks.ps1 -Force
+
+# Remove configuration file
+Remove-Item .git/hooks/config.json -ErrorAction SilentlyContinue
+```
+
+## Advanced Usage
+
+### Custom Hook Arguments
+
+Pass arguments to the PowerShell hook:
+
+```bash
+# Run with verbose output
+pwsh scripts/git/pre-commit-hook.ps1 -Verbose
+
+# Skip specific checks
+pwsh scripts/git/pre-commit-hook.ps1 -SkipSecurity -SkipFormat
+```
+
+### Integration with CI/CD
+
+The hooks are designed to complement CI/CD pipelines:
+- Local hooks provide fast feedback
+- CI/CD pipelines provide comprehensive validation
+- Both use the same security tools and configurations
+
+### Team Configuration
+
+Share hook configuration across the team:
+
+1. Commit the configuration file:
+   ```bash
+   git add .git/hooks/config.json
+   git commit -m "Add team hook configuration"
+   ```
+
+2. Team members run:
+   ```powershell
+   .\scripts\git\install-hooks.ps1
+   ```
+
+## Support
+
+For issues or questions:
+1. Check the troubleshooting section above
+2. Review the configuration with `configure-hooks.ps1 -ShowCurrent`
+3. Test individual components manually
+4. Check security tool documentation for tool-specific issues
+
+## Related Documentation
+
+- [Security Tools Documentation](../security/README.md)
+- [CI/CD Pipeline Documentation](../../.github/workflows/README.md)
+- [Project Security Documentation](../../security/README.md)

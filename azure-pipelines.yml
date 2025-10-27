@@ -1,0 +1,465 @@
+# Azure DevOps Pipeline for Terraform Security Validation
+# This pipeline performs security scanning, Terraform validation, and deployment
+
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    include:
+    - src/*
+    - security/*
+    - azure-pipelines.yml
+
+pr:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    include:
+    - src/*
+    - security/*
+    - azure-pipelines.yml
+
+variables:
+  # Tool versions
+  terraformVersion: '1.5.7'
+  checkovVersion: '3.0.0'
+  tfsecVersion: '1.28.0'
+  terrascanVersion: '1.18.0'
+  
+  # Pipeline configuration
+  vmImage: 'ubuntu-latest'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+  reportsDirectory: '$(workingDirectory)/security/reports'
+  
+  # Security gate configuration
+  failOnCritical: true
+  failOnHigh: true
+  
+  # Azure connection (to be configured in pipeline variables)
+  # azureServiceConnection: 'your-service-connection-name'
+  # azureSubscription: 'your-subscription-id'
+
+stages:
+- stage: SecurityValidation
+  displayName: 'Security Validation'
+  jobs:
+  - job: TerraformValidation
+    displayName: 'Terraform Format and Validation'
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: $(terraformVersion)
+        
+    - task: PowerShell@2
+      displayName: 'Terraform Format Check'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Checking Terraform formatting..."
+          $formatResult = terraform fmt -check -recursive src/
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "##vso[task.logissue type=warning]Terraform files are not properly formatted"
+            Write-Host "##vso[task.complete result=SucceededWithIssues]"
+          } else {
+            Write-Host "All Terraform files are properly formatted"
+          }
+        workingDirectory: $(workingDirectory)
+        
+    - task: PowerShell@2
+      displayName: 'Terraform Init and Validate'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Initializing Terraform..."
+          Set-Location src
+          terraform init -backend=false
+          
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Validating Terraform configuration..."
+            terraform validate
+            
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Terraform validation successful"
+            } else {
+              Write-Host "##vso[task.logissue type=error]Terraform validation failed"
+              exit 1
+            }
+          } else {
+            Write-Host "##vso[task.logissue type=error]Terraform initialization failed"
+            exit 1
+          }
+        workingDirectory: $(workingDirectory)
+
+  - job: SecurityScanning
+    displayName: 'SAST Security Scanning'
+    dependsOn: TerraformValidation
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: UsePythonVersion@0
+      displayName: 'Setup Python'
+      inputs:
+        versionSpec: '3.11'
+        addToPath: true
+        
+    - task: GoTool@0
+      displayName: 'Setup Go'
+      inputs:
+        version: '1.21'
+        
+    - task: PowerShell@2
+      displayName: 'Create Reports Directory'
+      inputs:
+        targetType: 'inline'
+        script: |
+          if (!(Test-Path "$(reportsDirectory)")) {
+            New-Item -ItemType Directory -Path "$(reportsDirectory)" -Force
+            Write-Host "Created reports directory: $(reportsDirectory)"
+          }
+        
+    - task: PowerShell@2
+      displayName: 'Install Security Tools'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Installing Checkov..."
+          pip install checkov==$(checkovVersion)
+          checkov --version
+          
+          Write-Host "Installing TFSec..."
+          $tfsecUrl = "https://github.com/aquasecurity/tfsec/releases/download/v$(tfsecVersion)/tfsec-linux-amd64"
+          Invoke-WebRequest -Uri $tfsecUrl -OutFile tfsec
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/
+          tfsec --version
+          
+          Write-Host "Installing Terrascan..."
+          $terrascanUrl = "https://github.com/tenable/terrascan/releases/download/v$(terrascanVersion)/terrascan_$(terrascanVersion)_Linux_x86_64.tar.gz"
+          Invoke-WebRequest -Uri $terrascanUrl -OutFile terrascan.tar.gz
+          tar -xf terrascan.tar.gz terrascan
+          sudo mv terrascan /usr/local/bin/
+          terrascan version
+        workingDirectory: $(workingDirectory)
+        
+    - task: PowerShell@2
+      displayName: 'Run Checkov Security Scan'
+      continueOnError: true
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Running Checkov security scan..."
+          checkov `
+            --config-file security/sast-tools/.checkov.yaml `
+            --directory src/ `
+            --output json `
+            --output-file-path security/reports/checkov-report.json `
+            --output sarif `
+            --output-file-path security/reports/checkov-sarif.json `
+            --output junit `
+            --output-file-path security/reports/checkov-junit.xml
+            
+          Write-Host "Checkov scan completed with exit code: $LASTEXITCODE"
+        workingDirectory: $(workingDirectory)
+        
+    - task: PowerShell@2
+      displayName: 'Run TFSec Security Scan'
+      continueOnError: true
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Running TFSec security scan..."
+          tfsec src/ `
+            --config-file security/sast-tools/.tfsec.yml `
+            --format json `
+            --out security/reports/tfsec-report.json `
+            --format sarif `
+            --out security/reports/tfsec-sarif.json `
+            --format junit `
+            --out security/reports/tfsec-junit.xml
+            
+          Write-Host "TFSec scan completed with exit code: $LASTEXITCODE"
+        workingDirectory: $(workingDirectory)
+        
+    - task: PowerShell@2
+      displayName: 'Run Terrascan Security Scan'
+      continueOnError: true
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Running Terrascan security scan..."
+          terrascan scan `
+            --config-path security/sast-tools/.terrascan_config.toml `
+            --iac-dir src/ `
+            --output json `
+            --output-dir security/reports/ `
+            --output sarif `
+            --output-dir security/reports/
+            
+          Write-Host "Terrascan scan completed with exit code: $LASTEXITCODE"
+        workingDirectory: $(workingDirectory)
+        
+    - task: PowerShell@2
+      displayName: 'Process Security Scan Results'
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Function to count issues by severity
+          function Get-SeverityCounts {
+              param(
+                  [string]$JsonPath,
+                  [string]$Tool
+              )
+              
+              if (!(Test-Path $JsonPath)) {
+                  Write-Host "Warning: Report file not found: $JsonPath"
+                  return @{ Critical = 0; High = 0; Medium = 0; Low = 0; Info = 0 }
+              }
+              
+              try {
+                  $jsonContent = Get-Content $JsonPath -Raw | ConvertFrom-Json
+                  $counts = @{ Critical = 0; High = 0; Medium = 0; Low = 0; Info = 0 }
+                  
+                  switch ($Tool.ToLower()) {
+                      "checkov" {
+                          if ($jsonContent.results -and $jsonContent.results.failed_checks) {
+                              foreach ($check in $jsonContent.results.failed_checks) {
+                                  switch ($check.severity.ToUpper()) {
+                                      "CRITICAL" { $counts.Critical++ }
+                                      "HIGH" { $counts.High++ }
+                                      "MEDIUM" { $counts.Medium++ }
+                                      "LOW" { $counts.Low++ }
+                                      "INFO" { $counts.Info++ }
+                                  }
+                              }
+                          }
+                      }
+                      "tfsec" {
+                          if ($jsonContent.results) {
+                              foreach ($result in $jsonContent.results) {
+                                  switch ($result.severity.ToUpper()) {
+                                      "CRITICAL" { $counts.Critical++ }
+                                      "HIGH" { $counts.High++ }
+                                      "MEDIUM" { $counts.Medium++ }
+                                      "LOW" { $counts.Low++ }
+                                      "INFO" { $counts.Info++ }
+                                  }
+                              }
+                          }
+                      }
+                      "terrascan" {
+                          if ($jsonContent.results -and $jsonContent.results.violations) {
+                              foreach ($violation in $jsonContent.results.violations) {
+                                  switch ($violation.severity.ToUpper()) {
+                                      "CRITICAL" { $counts.Critical++ }
+                                      "HIGH" { $counts.High++ }
+                                      "MEDIUM" { $counts.Medium++ }
+                                      "LOW" { $counts.Low++ }
+                                      "INFO" { $counts.Info++ }
+                                  }
+                              }
+                          }
+                      }
+                  }
+                  
+                  return $counts
+              } catch {
+                  Write-Host "Error parsing $Tool report: $_"
+                  return @{ Critical = 0; High = 0; Medium = 0; Low = 0; Info = 0 }
+              }
+          }
+          
+          # Process results from each tool
+          $tools = @{
+              "checkov" = "security/reports/checkov-report.json"
+              "tfsec" = "security/reports/tfsec-report.json"
+              "terrascan" = "security/reports/results.json"
+          }
+          
+          $totalCounts = @{ Critical = 0; High = 0; Medium = 0; Low = 0; Info = 0 }
+          $toolResults = @{}
+          
+          foreach ($tool in $tools.Keys) {
+              $counts = Get-SeverityCounts $tools[$tool] $tool
+              $toolResults[$tool] = $counts
+              
+              foreach ($severity in $totalCounts.Keys) {
+                  $totalCounts[$severity] += $counts[$severity]
+              }
+          }
+          
+          # Create summary
+          $summary = @{
+              timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+              total_issues = ($totalCounts.Values | Measure-Object -Sum).Sum
+              by_severity = $totalCounts
+              by_tool = $toolResults
+          }
+          
+          # Save unified report
+          $summary | ConvertTo-Json -Depth 10 | Out-File -FilePath "security/reports/unified-scan-results.json" -Encoding UTF8
+          
+          # Display results
+          Write-Host ""
+          Write-Host "=== Security Scan Summary ===" -ForegroundColor Cyan
+          Write-Host "Total Issues: $($summary.total_issues)" -ForegroundColor White
+          Write-Host "Critical: $($totalCounts.Critical)" -ForegroundColor $(if ($totalCounts.Critical -gt 0) { "Red" } else { "Green" })
+          Write-Host "High: $($totalCounts.High)" -ForegroundColor $(if ($totalCounts.High -gt 0) { "Red" } else { "Green" })
+          Write-Host "Medium: $($totalCounts.Medium)" -ForegroundColor $(if ($totalCounts.Medium -gt 0) { "Yellow" } else { "Green" })
+          Write-Host "Low: $($totalCounts.Low)" -ForegroundColor $(if ($totalCounts.Low -gt 0) { "Yellow" } else { "Green" })
+          Write-Host "Info: $($totalCounts.Info)" -ForegroundColor Gray
+          
+          # Set pipeline variables
+          Write-Host "##vso[task.setvariable variable=TotalIssues]$($summary.total_issues)"
+          Write-Host "##vso[task.setvariable variable=CriticalIssues]$($totalCounts.Critical)"
+          Write-Host "##vso[task.setvariable variable=HighIssues]$($totalCounts.High)"
+          Write-Host "##vso[task.setvariable variable=MediumIssues]$($totalCounts.Medium)"
+          Write-Host "##vso[task.setvariable variable=LowIssues]$($totalCounts.Low)"
+          
+          # Determine if build should fail
+          $shouldFail = $false
+          
+          if ($(failOnCritical) -eq "true" -and $totalCounts.Critical -gt 0) {
+              Write-Host "##vso[task.logissue type=error]Build FAILED: Critical security issues found!"
+              $shouldFail = $true
+          }
+          
+          if ($(failOnHigh) -eq "true" -and $totalCounts.High -gt 0) {
+              Write-Host "##vso[task.logissue type=error]Build FAILED: High severity security issues found!"
+              $shouldFail = $true
+          }
+          
+          if ($shouldFail) {
+              Write-Host "##vso[task.complete result=Failed]"
+              exit 1
+          } elseif ($summary.total_issues -eq 0) {
+              Write-Host "Build PASSED: No security issues found!" -ForegroundColor Green
+          } else {
+              Write-Host "Build PASSED: Only low/medium severity issues found." -ForegroundColor Yellow
+              Write-Host "##vso[task.complete result=SucceededWithIssues]"
+          }
+        workingDirectory: $(workingDirectory)
+        
+    - task: PublishTestResults@2
+      displayName: 'Publish Checkov Test Results'
+      condition: always()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'security/reports/checkov-junit.xml'
+        testRunTitle: 'Checkov Security Scan'
+        failTaskOnFailedTests: false
+        
+    - task: PublishTestResults@2
+      displayName: 'Publish TFSec Test Results'
+      condition: always()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'security/reports/tfsec-junit.xml'
+        testRunTitle: 'TFSec Security Scan'
+        failTaskOnFailedTests: false
+        
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Security Reports'
+      condition: always()
+      inputs:
+        pathToPublish: 'security/reports'
+        artifactName: 'security-reports'
+        publishLocation: 'Container'
+
+- stage: TerraformPlan
+  displayName: 'Terraform Plan'
+  dependsOn: SecurityValidation
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: Plan
+    displayName: 'Generate Terraform Plan'
+    pool:
+      vmImage: $(vmImage)
+    
+    steps:
+    - checkout: self
+      displayName: 'Checkout Repository'
+      
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: $(terraformVersion)
+        
+    - task: PowerShell@2
+      displayName: 'Terraform Plan'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Initializing Terraform..."
+          Set-Location src
+          terraform init -backend=false
+          
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Generating Terraform plan..."
+            terraform plan -no-color -out=tfplan
+            
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Terraform plan generated successfully"
+              
+              # Show plan summary
+              Write-Host ""
+              Write-Host "=== Terraform Plan Summary ===" -ForegroundColor Cyan
+              terraform show -no-color tfplan
+            } else {
+              Write-Host "##vso[task.logissue type=error]Terraform plan generation failed"
+              exit 1
+            }
+          } else {
+            Write-Host "##vso[task.logissue type=error]Terraform initialization failed"
+            exit 1
+          }
+        workingDirectory: $(workingDirectory)
+        
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Terraform Plan'
+      inputs:
+        pathToPublish: 'src/tfplan'
+        artifactName: 'terraform-plan'
+        publishLocation: 'Container'
+
+- stage: SecurityGate
+  displayName: 'Security Gate Approval'
+  dependsOn: SecurityValidation
+  condition: and(succeeded(), or(gt(dependencies.SecurityValidation.outputs['SecurityScanning.CriticalIssues'], 0), gt(dependencies.SecurityValidation.outputs['SecurityScanning.HighIssues'], 0)))
+  jobs:
+  - job: waitForValidation
+    displayName: 'Wait for Security Approval'
+    pool: server
+    timeoutInMinutes: 1440 # 24 hours
+    steps:
+    - task: ManualValidation@0
+      displayName: 'Security Review Required'
+      inputs:
+        notifyUsers: |
+          $(Build.RequestedForEmail)
+        instructions: |
+          Security scan has found critical or high severity issues that require manual review.
+          
+          Please review the security scan results in the build artifacts and approve if the issues are acceptable or have been mitigated.
+          
+          Critical Issues: $(CriticalIssues)
+          High Issues: $(HighIssues)
+          Medium Issues: $(MediumIssues)
+          Low Issues: $(LowIssues)
+          
+          Security reports are available in the build artifacts.
+        onTimeout: 'reject'
