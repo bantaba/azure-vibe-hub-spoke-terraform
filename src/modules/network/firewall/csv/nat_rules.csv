@@ -1,0 +1,2 @@
+name,source_addresses,destination_ports,destination_address,protocols,translated_address,translated_port
+nat_rule_collection1_rule1,"10.0.0.3,10.0.0.2",80,192.168.1.1,"TCP,UDP",192.168.0.1,8080

@@ -1,0 +1,4 @@
+IP,Owner,Comment
+131.107.0.0/16,,"https://msitexternalip.azurewebsites.net/ current IP is broad need to be scope down further same with 104.*"
+104.44.112.128/25,,Corp
+67.183.33.89,Me,home

@@ -1,0 +1,41 @@
+variable "keyVault_secrets_user_resource_principal_id" {
+  type = string
+  default = "4633458b-17de-408a-b874-0445c86b69e6"
+  sensitive = false
+  description = "Azure built-in role resource id. https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli"
+}
+
+variable "kv_owner" {
+  type = string
+  default = "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+  sensitive = false
+  description = "Azure built-in role resource to be able to create n assign. https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#user-access-administrator"
+}
+
+# variable "keyVault_administrator_resource_principal_id" {
+#   type = string
+#   default = "00482a5a-887f-4fb3-b363-3b7fe8e74483"
+#   sensitive = false
+#   description = "Azure built-in role resource id. https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli"
+# }
+
+variable "keyVault_id" {
+  type = string
+  sensitive = false
+  description = "Key Vault id"
+}
+
+variable "primary_subscription_id" {
+  type = string
+  description = "sub scope primary id"
+}
+
+variable "uami_principal_id" {
+  type = string
+  description = "User Assigned managed Identity principal Id"
+}
+
+variable "admin_role_principal_id" {
+  type = string
+  description = "(optional) describe your variable"
+}

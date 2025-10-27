@@ -1,0 +1,2 @@
+name,source_addresses,destination_fqdns,protocols
+app_rule_collection1_rule1,"10.0.0.1","*.microsoft.com","Http:80,Https:443"

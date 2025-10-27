@@ -1,0 +1,6 @@
+name,priority,direction,access,protocol,source_port_range,destination_port_range,source_address_prefix,destination_address_prefix
+RDP,1000,Inbound,Allow,Tcp,*,3389,VirtualNetwork,VirtualNetwork
+sql,1005,Inbound,Allow,Tcp,*,1433,SqlManagement,VirtualNetwork
+http,1010,Inbound,Allow,Tcp,*,80,*,VirtualNetwork
+https,1015,Inbound,Allow,Tcp,*,443,*,VirtualNetwork
+https,2055,Outbound,Allow,Tcp,*,443,VirtualNetwork,*
