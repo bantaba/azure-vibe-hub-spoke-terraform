@@ -1,0 +1,136 @@
+{
+  "changelog_config": {
+    "version": "1.0.0",
+    "format": "keepachangelog",
+    "output_formats": ["markdown", "json"],
+    "group_by_date": true,
+    "include_all_commits": false,
+    "conventional_commits": true,
+    "categories": {
+      "feat": {
+        "name": "Features",
+        "icon": "✨",
+        "description": "New features and functionality",
+        "impact": "minor"
+      },
+      "fix": {
+        "name": "Bug Fixes",
+        "icon": "🐛",
+        "description": "Bug fixes and error corrections",
+        "impact": "patch"
+      },
+      "docs": {
+        "name": "Documentation",
+        "icon": "📚",
+        "description": "Documentation updates and improvements",
+        "impact": "patch"
+      },
+      "style": {
+        "name": "Styles",
+        "icon": "💄",
+        "description": "Code style and formatting changes",
+        "impact": "patch"
+      },
+      "refactor": {
+        "name": "Code Refactoring",
+        "icon": "♻️",
+        "description": "Code refactoring without functional changes",
+        "impact": "patch"
+      },
+      "perf": {
+        "name": "Performance Improvements",
+        "icon": "⚡",
+        "description": "Performance optimizations and improvements",
+        "impact": "minor"
+      },
+      "test": {
+        "name": "Tests",
+        "icon": "✅",
+        "description": "Test additions and improvements",
+        "impact": "patch"
+      },
+      "build": {
+        "name": "Build System",
+        "icon": "👷",
+        "description": "Build system and dependency changes",
+        "impact": "patch"
+      },
+      "ci": {
+        "name": "Continuous Integration",
+        "icon": "🔧",
+        "description": "CI/CD pipeline and automation changes",
+        "impact": "patch"
+      },
+      "chore": {
+        "name": "Chores",
+        "icon": "🔨",
+        "description": "Maintenance tasks and housekeeping",
+        "impact": "patch"
+      },
+      "revert": {
+        "name": "Reverts",
+        "icon": "⏪",
+        "description": "Reverted changes",
+        "impact": "patch"
+      },
+      "security": {
+        "name": "Security",
+        "icon": "🔒",
+        "description": "Security improvements and fixes",
+        "impact": "patch"
+      },
+      "breaking": {
+        "name": "Breaking Changes",
+        "icon": "💥",
+        "description": "Breaking changes requiring major version bump",
+        "impact": "major"
+      }
+    },
+    "impact_levels": {
+      "major": {
+        "name": "Major",
+        "icon": "🚨",
+        "description": "Breaking changes or major new features",
+        "version_bump": "major"
+      },
+      "minor": {
+        "name": "Minor",
+        "icon": "📈",
+        "description": "New features or significant improvements",
+        "version_bump": "minor"
+      },
+      "patch": {
+        "name": "Patch",
+        "icon": "🔧",
+        "description": "Bug fixes or minor improvements",
+        "version_bump": "patch"
+      }
+    },
+    "filters": {
+      "exclude_patterns": [
+        "^Merge ",
+        "^Revert ",
+        "^WIP:",
+        "^wip:",
+        "^temp:",
+        "^temporary:"
+      ],
+      "include_merge_commits": false,
+      "minimum_message_length": 10
+    },
+    "output_settings": {
+      "main_changelog": "docs/changelog/CHANGELOG.md",
+      "versioned_changelog_pattern": "docs/changelog/CHANGELOG-{version}.md",
+      "json_output": "docs/changelog/changelog.json",
+      "include_commit_links": true,
+      "include_author_info": false,
+      "include_generation_metadata": true
+    },
+    "git_settings": {
+      "default_branch": "main",
+      "tag_pattern": "^v?\\d+\\.\\d+\\.\\d+$",
+      "commit_url_template": "../../commit/{hash}",
+      "compare_url_template": "../../compare/{from}...{to}"
+    }
+  }
+}

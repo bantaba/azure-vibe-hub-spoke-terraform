@@ -1,0 +1,9 @@
+# Release Documentation Directory
+
+This directory contains release notes and version-specific documentation.
+
+## Structure
+
+- `RELEASE-{version}.md` - Release notes for specific versions
+- `migration-guides/` - Migration guides for major version changes
+- `compatibility-matrix.md` - Version compatibility information

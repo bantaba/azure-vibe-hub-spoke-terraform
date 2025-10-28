@@ -1,0 +1,49 @@
+# Change Impact Analysis
+
+**Analysis Date:** 2025-10-27 21:33:58
+**Analysis Period:** -Since to v0.1.0
+**Total Commits:** 0
+**Total Files Changed:** 0
+
+## Overall Impact: ℹ️ Low
+
+Minor changes with minimal impact
+
+## Security Impact Analysis
+
+No security-related changes detected in this analysis period.
+
+## Infrastructure Impact Analysis
+
+### Change Summary
+
+- **Terraform Files:** 
+- **Module Changes:** 
+- **Configuration Changes:** 
+- **Script Changes:** 
+- **Documentation Changes:** 
+- **Impact Level:** 
+
+## Commit Analysis
+
+### Commit Type Distribution
+
+
+## Recommendations
+
+### ℹ️ Standard Deployment Process
+
+1. **Standard Review**: Follow normal code review process
+2. **Basic Testing**: Run standard test suite
+3. **Documentation**: Update documentation as needed
+4. **Deploy**: Proceed with standard deployment process
+
+---
+
+*This impact analysis was automatically generated on 2025-10-27 21:33:58 UTC*
+
+**Analysis Parameters:**
+- Since: -Since
+- Until: v0.1.0
+- Include File Analysis: True
+- Include Security Analysis: True
