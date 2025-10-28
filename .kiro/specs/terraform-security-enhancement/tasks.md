@@ -190,7 +190,11 @@
     - Implement documentation standards and templates
     - _Requirements: 6.5_
 
-- [-] 7. Create Security Documentation System
+- [x] 7. Create Security Documentation System
+
+
+
+
 
 
   - [x] 7.1 Create security improvements documentation
