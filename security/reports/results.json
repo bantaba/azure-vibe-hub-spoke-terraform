@@ -1,0 +1,20 @@
+{
+  "results": {
+    "violations": [
+      {
+        "resource_name": "azurerm_storage_account.example",
+        "description": "Ensure that Storage Account access keys are periodically regenerated",
+        "severity": "HIGH",
+        "file": "src/modules/Storage/storage.tf",
+        "rule_id": "AC_AZURE_0001"
+      },
+      {
+        "resource_name": "azurerm_key_vault.example",
+        "description": "Ensure that key vault allows firewall rules settings",
+        "severity": "LOW",
+        "file": "src/modules/Security/keyvault.tf",
+        "rule_id": "CKV_AZURE_109"
+      }
+    ]
+  }
+}

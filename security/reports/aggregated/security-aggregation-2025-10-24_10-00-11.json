@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-10-24T10:00:11Z",
+  "aggregation": {
+    "security_posture": {
+      "current_score": 62,
+      "risk_level": "medium"
+    },
+    "summary": {
+      "critical_findings": 0,
+      "total_findings": 5,
+      "risk_score": 190,
+      "high_findings": 2,
+      "low_findings": 1,
+      "medium_findings": 2
+    }
+  }
+}

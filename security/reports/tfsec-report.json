@@ -1,0 +1,22 @@
+{
+  "results": [
+    {
+      "description": "Storage account should have default network access rule set to deny",
+      "resource": "azurerm_storage_account.example",
+      "severity": "HIGH",
+      "location": {
+        "filename": "src/modules/Storage/storage.tf"
+      },
+      "rule_id": "azure-storage-default-action-deny"
+    },
+    {
+      "description": "Network security group should not allow public ingress",
+      "resource": "azurerm_network_security_group.example",
+      "severity": "MEDIUM",
+      "location": {
+        "filename": "src/modules/network/nsg.tf"
+      },
+      "rule_id": "azure-network-no-public-ingress"
+    }
+  ]
+}

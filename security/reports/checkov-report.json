@@ -1,0 +1,27 @@
+{
+  "results": {
+    "failed_checks": [
+      {
+        "file_path": "src/modules/Storage/storage.tf",
+        "resource": "azurerm_storage_account.example",
+        "check_id": "CKV_AZURE_33",
+        "severity": "HIGH",
+        "check_name": "Ensure storage account uses HTTPS traffic only"
+      },
+      {
+        "file_path": "src/modules/Storage/storage.tf",
+        "resource": "azurerm_storage_account.example",
+        "check_id": "CKV_AZURE_35",
+        "severity": "MEDIUM",
+        "check_name": "Ensure default network access rule for Storage Accounts is set to deny"
+      },
+      {
+        "file_path": "src/modules/Security/keyvault.tf",
+        "resource": "azurerm_key_vault.example",
+        "check_id": "CKV_AZURE_40",
+        "severity": "CRITICAL",
+        "check_name": "Ensure that the expiration date is set on all keys"
+      }
+    ]
+  }
+}

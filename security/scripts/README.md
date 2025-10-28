@@ -47,7 +47,68 @@ Enhanced script for executing SAST tools locally with comprehensive reporting an
 - `-Severity`: Filter by severity (all, critical, high, medium, low)
 - `-OutputFormat`: Output format (detailed, summary, json)
 
-### 📊 Report Generation
+### 📊 Report Generation and Aggregation
+
+#### `security-report-aggregator.ps1`
+**NEW** - Advanced security report aggregation system with trend analysis and dashboard generation.
+
+**Features:**
+- Unified aggregation across all SAST tools
+- Historical trend analysis and security posture tracking
+- Interactive dashboard with real-time charts
+- Multiple report formats (HTML, JSON, Markdown)
+- Security baseline management
+- Risk scoring and compliance tracking
+- Automated recommendations generation
+
+**Usage:**
+```powershell
+# Full aggregation with dashboard and trends
+.\security-report-aggregator.ps1 -GenerateDashboard -IncludeTrendAnalysis
+
+# Update security baseline
+.\security-report-aggregator.ps1 -UpdateBaseline
+
+# Generate specific report formats
+.\security-report-aggregator.ps1 -ReportFormats @("html", "json")
+
+# Open dashboard automatically
+.\security-report-aggregator.ps1 -OpenDashboard
+```
+
+**Parameters:**
+- `-ReportsPath`: Path to scan reports (default: "security/reports/")
+- `-OutputPath`: Path for aggregated reports (default: "security/reports/aggregated/")
+- `-BaselinePath`: Path for baseline data (default: "security/reports/baselines/")
+- `-DashboardPath`: Path for dashboard files (default: "security/reports/dashboard/")
+- `-ReportFormats`: Array of formats (html, json, markdown)
+- `-GenerateDashboard`: Create interactive dashboard (default: true)
+- `-IncludeTrendAnalysis`: Include trend analysis (default: true)
+- `-UpdateBaseline`: Update security baseline
+- `-OpenDashboard`: Open dashboard in browser
+- `-ConfigPath`: Path to aggregator configuration
+
+#### `launch-security-aggregation.ps1`
+**NEW** - Comprehensive launcher for the complete security aggregation workflow.
+
+**Features:**
+- Orchestrates complete aggregation workflow
+- Optional pre-scan execution
+- Prerequisites validation
+- Comprehensive error handling
+- Execution summary and reporting
+
+**Usage:**
+```powershell
+# Complete workflow with fresh scans
+.\launch-security-aggregation.ps1 -RunScansFirst -OpenDashboard
+
+# Aggregation only with existing results
+.\launch-security-aggregation.ps1
+
+# Update baseline and generate all formats
+.\launch-security-aggregation.ps1 -UpdateBaseline -ReportFormats @("html", "json", "markdown")
+```
 
 #### `generate-security-report.ps1`
 Generates comprehensive security reports with analysis and remediation guidance.
@@ -154,14 +215,34 @@ Legacy unified SAST execution script (use `local-security-scan.ps1` for enhanced
 # 1. Install tools (if not already installed)
 .\install-all-sast-tools.ps1
 
-# 2. Run comprehensive security scan
+# 2. Run comprehensive security scan with aggregation
+.\launch-security-aggregation.ps1 -RunScansFirst -OpenDashboard
+
+# Alternative: Step-by-step approach
+# 2a. Run security scan
 .\local-security-scan.ps1 -OutputFormat detailed -ShowRemediation
 
-# 3. Generate HTML report
-.\generate-security-report.ps1 -ReportFormat html -OpenReport
+# 2b. Generate aggregated reports and dashboard
+.\security-report-aggregator.ps1 -GenerateDashboard -OpenDashboard
 
-# 4. Get interactive remediation guidance
+# 3. Get interactive remediation guidance
 .\remediation-assistant.ps1
+```
+
+### 📈 Security Posture Monitoring
+
+```powershell
+# 1. Initial baseline establishment
+.\launch-security-aggregation.ps1 -RunScansFirst -UpdateBaseline
+
+# 2. Regular monitoring (daily/weekly)
+.\launch-security-aggregation.ps1 -IncludeTrendAnalysis
+
+# 3. View security dashboard
+# Open: security/reports/dashboard/security-dashboard.html
+
+# 4. Generate executive reports
+.\security-report-aggregator.ps1 -ReportFormats @("html", "markdown")
 ```
 
 ### 🔄 CI/CD Integration
@@ -208,9 +289,21 @@ if ($LASTEXITCODE -ne 0) {
 - `security-report-{timestamp}.md` - Markdown report
 - `remediation-guidance-{timestamp}.md` - Remediation report
 
+### Aggregated Reports (NEW)
+- `security/reports/aggregated/security-aggregation-{timestamp}.json` - Comprehensive aggregated data
+- `security/reports/aggregated/security-aggregation-{timestamp}.html` - Aggregated HTML report
+- `security/reports/aggregated/security-aggregation-{timestamp}.md` - Aggregated Markdown report
+
+### Dashboard Files (NEW)
+- `security/reports/dashboard/security-dashboard.html` - Interactive security dashboard
+- `security/reports/dashboard/dashboard-data.json` - Dashboard data for dynamic updates
+
 ### Baseline Files
-- `security-baseline.json` - Security baseline for trend analysis
+- `security/reports/baselines/security-baseline.json` - Security baseline for trend analysis
 - `checkov-baseline.json` - Checkov-specific baseline
+
+### Test Files (NEW)
+- `security/reports/test-results-{timestamp}.json` - Aggregation system test results
 
 ### Log Files
 - `{tool}-output.log` - Tool execution output
@@ -222,6 +315,17 @@ The scripts use configuration files located in `security/sast-tools/`:
 - `.checkov.yaml` - Checkov configuration
 - `.tfsec.yml` - TFSec configuration
 - `.terrascan_config.toml` - Terrascan configuration
+- `aggregator-config.json` - **NEW** - Security report aggregator configuration
+
+### Aggregator Configuration
+
+The `aggregator-config.json` file controls:
+- **Severity Weights**: Risk scoring weights for different severity levels
+- **Risk Thresholds**: Thresholds for low/medium/high risk classification
+- **Trend Analysis**: Historical data analysis settings
+- **Dashboard**: Dashboard generation and refresh settings
+- **Report Retention**: Automatic cleanup of old reports
+- **Compliance Frameworks**: CIS, NIST compliance checking
 
 ## Error Handling
 

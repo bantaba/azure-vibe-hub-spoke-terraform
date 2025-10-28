@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-10-28T10:00:11Z",
+  "summary": {
+    "total_tests": 14,
+    "failed_tests": 3,
+    "duration_seconds": 0.5316725,
+    "passed_tests": 11,
+    "success_rate": 78.6
+  },
+  "test_results": [
+    {
+      "timestamp": "2025-10-28T10:00:11.4034876-07:00",
+      "test_name": "Create Sample Scan Data",
+      "passed": true,
+      "message": "Created sample reports for Checkov, TFSec, Terrascan, and Unified",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.4730161-07:00",
+      "test_name": "Create Historical Data",
+      "passed": true,
+      "message": "Created 7 days of historical aggregation data",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.4916695-07:00",
+      "test_name": "Aggregator Script Exists",
+      "passed": true,
+      "message": "Found aggregator script",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.4992554-07:00",
+      "test_name": "Configuration File Exists",
+      "passed": true,
+      "message": "Found configuration file",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.5043932-07:00",
+      "test_name": "Configuration Validation",
+      "passed": true,
+      "message": "All required configuration keys present",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.5102978-07:00",
+      "test_name": "Directory Structure",
+      "passed": true,
+      "message": "All required directories exist",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.715822-07:00",
+      "test_name": "Dashboard Generation",
+      "passed": false,
+      "message": "Dashboard file not created",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.7181904-07:00",
+      "test_name": "Dashboard Data Generation",
+      "passed": false,
+      "message": "Dashboard data file not created",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.7962065-07:00",
+      "test_name": "Security Posture Module Import",
+      "passed": true,
+      "message": "Module imported successfully",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.8034787-07:00",
+      "test_name": "Security Posture Calculation",
+      "passed": true,
+      "message": "Posture score calculated: 93",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.8277116-07:00",
+      "test_name": "Trend Analysis",
+      "passed": true,
+      "message": "Trend analysis completed: improving",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.8495407-07:00",
+      "test_name": "Recommendations Generation",
+      "passed": true,
+      "message": "Generated 6 recommendations",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.8550778-07:00",
+      "test_name": "Launcher Script Exists",
+      "passed": true,
+      "message": "Launcher script found",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T10:00:11.9116298-07:00",
+      "test_name": "Launcher Help Function",
+      "passed": false,
+      "message": "Help function output: ",
+      "details": null
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-10-28T10:00:11Z",
+  "scan_summary": {
+    "critical_issues": 1,
+    "total_issues": 6,
+    "total_tools_run": 3,
+    "high_issues": 3,
+    "medium_issues": 2,
+    "low_issues": 1
+  },
+  "tool_results": {
+    "TFSec": {
+      "Info": 0,
+      "Medium": 1,
+      "High": 1,
+      "Low": 0,
+      "Critical": 0
+    },
+    "Checkov": {
+      "Info": 0,
+      "Medium": 1,
+      "High": 1,
+      "Low": 0,
+      "Critical": 1
+    },
+    "Terrascan": {
+      "Info": 0,
+      "Medium": 0,
+      "High": 1,
+      "Low": 1,
+      "Critical": 0
+    }
+  }
+}

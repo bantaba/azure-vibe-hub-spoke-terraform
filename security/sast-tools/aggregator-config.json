@@ -1,0 +1,44 @@
+{
+  "severity_weights": {
+    "CRITICAL": 10,
+    "HIGH": 7,
+    "MEDIUM": 4,
+    "LOW": 1,
+    "INFO": 0
+  },
+  "risk_thresholds": {
+    "low": 50,
+    "medium": 200,
+    "high": 500
+  },
+  "trend_analysis": {
+    "enabled": true,
+    "history_days": 30,
+    "baseline_update_threshold": 0.1
+  },
+  "dashboard": {
+    "enabled": true,
+    "auto_refresh": 300,
+    "chart_types": ["severity", "trends", "tools", "categories"]
+  },
+  "report_retention": {
+    "days": 90,
+    "max_reports": 100
+  },
+  "notification_thresholds": {
+    "critical_findings": 1,
+    "high_findings": 5,
+    "risk_score_increase": 50
+  },
+  "compliance_frameworks": {
+    "CIS": {
+      "enabled": true,
+      "max_critical": 0,
+      "max_high": 2
+    },
+    "NIST": {
+      "enabled": true,
+      "max_risk_score": 100
+    }
+  }
+}

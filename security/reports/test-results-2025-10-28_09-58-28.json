@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-10-28T09:58:28Z",
+  "summary": {
+    "total_tests": 14,
+    "failed_tests": 4,
+    "duration_seconds": 0.8445097,
+    "passed_tests": 10,
+    "success_rate": 71.4
+  },
+  "test_results": [
+    {
+      "timestamp": "2025-10-28T09:58:28.0017901-07:00",
+      "test_name": "Create Sample Scan Data",
+      "passed": true,
+      "message": "Created sample reports for Checkov, TFSec, Terrascan, and Unified",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.0491159-07:00",
+      "test_name": "Create Historical Data",
+      "passed": true,
+      "message": "Created 7 days of historical aggregation data",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.0648328-07:00",
+      "test_name": "Aggregator Script Exists",
+      "passed": true,
+      "message": "Found aggregator script",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.0689578-07:00",
+      "test_name": "Configuration File Exists",
+      "passed": true,
+      "message": "Found configuration file",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.0743678-07:00",
+      "test_name": "Configuration Validation",
+      "passed": true,
+      "message": "All required configuration keys present",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.0805827-07:00",
+      "test_name": "Directory Structure",
+      "passed": true,
+      "message": "All required directories exist",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.3880793-07:00",
+      "test_name": "Dashboard Generation",
+      "passed": false,
+      "message": "Dashboard file not created",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.3902896-07:00",
+      "test_name": "Dashboard Data Generation",
+      "passed": false,
+      "message": "Dashboard data file not created",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.466586-07:00",
+      "test_name": "Security Posture Module Import",
+      "passed": true,
+      "message": "Module imported successfully",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.5229317-07:00",
+      "test_name": "Security Posture Calculation",
+      "passed": true,
+      "message": "Posture score calculated: 93",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.6741955-07:00",
+      "test_name": "Trend Analysis Test",
+      "passed": false,
+      "message": "Error during trend analysis testing: The term 'if' is not recognized as a name of a cmdlet, function, script file, or executable program.\r\nCheck the spelling of the name, or if a path was included, verify that the path is correct and try again.",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.6785566-07:00",
+      "test_name": "Launcher Script Exists",
+      "passed": true,
+      "message": "Launcher script found",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.7564365-07:00",
+      "test_name": "Launcher Help Function",
+      "passed": false,
+      "message": "Help function not working properly",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:58:28.8219223-07:00",
+      "test_name": "Cleanup Test Data",
+      "passed": true,
+      "message": "Test data cleaned up successfully",
+      "details": null
+    }
+  ]
+}

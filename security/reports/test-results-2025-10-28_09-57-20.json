@@ -1,0 +1,89 @@
+{
+  "timestamp": "2025-10-28T09:57:20Z",
+  "summary": {
+    "total_tests": 11,
+    "failed_tests": 4,
+    "duration_seconds": 0.6362492,
+    "passed_tests": 7,
+    "success_rate": 63.6
+  },
+  "test_results": [
+    {
+      "timestamp": "2025-10-28T09:57:20.1720821-07:00",
+      "test_name": "Create Sample Scan Data",
+      "passed": true,
+      "message": "Created sample reports for Checkov, TFSec, Terrascan, and Unified",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.2262833-07:00",
+      "test_name": "Create Historical Data",
+      "passed": true,
+      "message": "Created 7 days of historical aggregation data",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.2717789-07:00",
+      "test_name": "Aggregator Script Exists",
+      "passed": true,
+      "message": "Found aggregator script",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.274316-07:00",
+      "test_name": "Configuration File Exists",
+      "passed": true,
+      "message": "Found configuration file",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.2997661-07:00",
+      "test_name": "Configuration Validation",
+      "passed": true,
+      "message": "All required configuration keys present",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.3074992-07:00",
+      "test_name": "Directory Structure",
+      "passed": true,
+      "message": "All required directories exist",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.5921381-07:00",
+      "test_name": "Dashboard Generation",
+      "passed": false,
+      "message": "Dashboard file not created",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.5944071-07:00",
+      "test_name": "Dashboard Data Generation",
+      "passed": false,
+      "message": "Dashboard data file not created",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.6190454-07:00",
+      "test_name": "Trend Analysis Test",
+      "passed": false,
+      "message": "Error during trend analysis testing: The specified module 'security/scripts/SecurityPostureModule.psm1' was not loaded because no valid module file was found in any module directory.",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.6305729-07:00",
+      "test_name": "Launcher Script Exists",
+      "passed": true,
+      "message": "Launcher script found",
+      "details": null
+    },
+    {
+      "timestamp": "2025-10-28T09:57:20.7372819-07:00",
+      "test_name": "Launcher Help Function",
+      "passed": false,
+      "message": "Help function not working properly",
+      "details": null
+    }
+  ]
+}
