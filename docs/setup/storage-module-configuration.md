@@ -106,9 +106,10 @@ module "dev_storage" {
   container_delete_retention_days = 1
   
   tags = {
-    Environment = "Development"
-    Team        = "DevOps"
-    Project     = "TerraformSecurity"
+    environment = "development"
+    team        = "devops"
+    project     = "terraform-security"
+    deployed_via = "terraform"
   }
 }
 ```
@@ -149,10 +150,11 @@ module "prod_storage" {
   private_dns_zone_ids      = [var.blob_private_dns_zone_id]
   
   tags = {
-    Environment = "Production"
-    Team        = "DevOps"
-    Project     = "TerraformSecurity"
-    Compliance  = "Required"
+    environment = "production"
+    team        = "devops"
+    project     = "terraform-security"
+    compliance  = "required"
+    deployed_via = "terraform"
   }
 }
 ```
@@ -198,9 +200,10 @@ module "secure_storage" {
   ]
   
   tags = {
-    Environment    = "Secure"
-    Classification = "Confidential"
-    Compliance     = "SOC2-PCI-HIPAA"
+    environment    = "secure"
+    classification = "confidential"
+    compliance     = "soc2-pci-hipaa"
+    deployed_via   = "terraform"
   }
 }
 ```

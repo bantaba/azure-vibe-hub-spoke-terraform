@@ -1,16 +1,43 @@
 variable "vault_name" {
-  type = string
+  type        = string
   description = "Specifies the name of the Key Vault. Changing this forces a new resource to be created. The name must be globally unique. If the vault is in a recoverable state then the vault will need to be purged before reusing the name."
+  
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9-]+$", var.vault_name)) && length(var.vault_name) >= 3 && length(var.vault_name) <= 24
+    error_message = "Key Vault name must be 3-24 characters long and contain only alphanumeric characters and hyphens."
+  }
+  
+  validation {
+    condition     = can(regex("^[a-zA-Z]", var.vault_name)) && can(regex("[a-zA-Z0-9]$", var.vault_name))
+    error_message = "Key Vault name must start with a letter and end with a letter or number."
+  }
 }
 
 variable "vault_location" {
-  type = string
+  type        = string
   description = "Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
+  
+  validation {
+    condition = contains([
+      "eastus", "eastus2", "southcentralus", "westus2", "westus3", "australiaeast",
+      "southeastasia", "northeurope", "swedencentral", "uksouth", "westeurope",
+      "centralus", "northcentralus", "westus", "southafricanorth", "centralindia",
+      "eastasia", "japaneast", "koreacentral", "canadacentral", "francecentral",
+      "germanywestcentral", "norwayeast", "switzerlandnorth", "uaenorth",
+      "brazilsouth", "centraluseuap", "eastus2euap", "qatarcentral", "westcentralus"
+    ], var.vault_location)
+    error_message = "The location must be a valid Azure region."
+  }
 }
 
 variable "vault_rg_name" {
-  type = string
+  type        = string
   description = "The name of the resource group in which to create the Key Vault. Changing this forces a new resource to be created."
+  
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9._-]+$", var.vault_rg_name)) && length(var.vault_rg_name) <= 90
+    error_message = "Resource group name must be alphanumeric with periods, underscores, hyphens allowed. Maximum length is 90 characters."
+  }
 }
 
 variable "tenant_id" {
@@ -19,53 +46,102 @@ variable "tenant_id" {
 }
 
 variable "sku_name" {
-  type = string
-  default = "standard"
+  type        = string
+  default     = "standard"
   description = "The Name of the SKU used for this Key Vault. Possible values are standard and premium."
+  
+  validation {
+    condition     = contains(["standard", "premium"], var.sku_name)
+    error_message = "SKU name must be either 'standard' or 'premium'."
+  }
 }
+
 variable "soft_delete_retention_days" {
-  type = number
-  default = 14
-  description = "The number of days that items should be retained for once soft-deleted. This value can be between 7 and 90 (the default) days."
+  type        = number
+  default     = 14
+  description = "The number of days that items should be retained for once soft-deleted. This value can be between 7 and 90 days."
+  
+  validation {
+    condition     = var.soft_delete_retention_days >= 7 && var.soft_delete_retention_days <= 90
+    error_message = "Soft delete retention days must be between 7 and 90."
+  }
 }
 
 variable "purge_protection_enabled" {
-  type = bool
-  default = true
-  description = "Is Purge Protection enabled for this Key Vault?"
+  type        = bool
+  default     = true
+  description = "Is Purge Protection enabled for this Key Vault? Recommended to be true for production environments."
 }
 
 variable "public_network_access_enabled" {
-  type = bool
-  default = true
-  description = "Whether public network access is allowed for this Key Vault. Defaults to true."
+  type        = bool
+  default     = true
+  description = "Whether public network access is allowed for this Key Vault. Set to false for enhanced security."
 }
 
 variable "network_acls_bypass" {
-  type = string
-  default = "AzureServices"
+  type        = string
+  default     = "AzureServices"
   description = "Specifies which traffic can bypass the network rules. Possible values are AzureServices and None."
+  
+  validation {
+    condition     = contains(["AzureServices", "None"], var.network_acls_bypass)
+    error_message = "Network ACLs bypass must be either 'AzureServices' or 'None'."
+  }
 }
 
 variable "network_acls_default_action" {
-  type = string
-  default = "Deny" 
+  type        = string
+  default     = "Deny"
   description = "The Default Action to use when no rules match from ip_rules / virtual_network_subnet_ids. Possible values are Allow and Deny."
+  
+  validation {
+    condition     = contains(["Allow", "Deny"], var.network_acls_default_action)
+    error_message = "Network ACLs default action must be either 'Allow' or 'Deny'."
+  }
 }
 
 variable "virtual_network_subnet_ids" {
-  type = set(string)
-  description = "One or more Subnet IDs which should be able to access this Key Vault."
+  type        = set(string)
+  description = "One or more Subnet IDs which should be able to access this Key Vault. Each must be a valid Azure subnet resource ID."
+  
+  validation {
+    condition = alltrue([
+      for subnet_id in var.virtual_network_subnet_ids : can(regex("^/subscriptions/[a-f0-9-]+/resourceGroups/.+/providers/Microsoft.Network/virtualNetworks/.+/subnets/.+$", subnet_id))
+    ])
+    error_message = "All subnet IDs must be valid Azure subnet resource IDs."
+  }
 }
 
 variable "allowed_ip_ranges" {
-  type = set(string)
-  description = "allowed_ip_ranges"
+  type        = set(string)
+  description = "Set of IP addresses or CIDR blocks that should be allowed to access this Key Vault. Each must be a valid IP address or CIDR block."
+  
+  validation {
+    condition = alltrue([
+      for ip_range in var.allowed_ip_ranges : can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}(/[0-9]{1,2})?$", ip_range))
+    ])
+    error_message = "All IP ranges must be valid IP addresses or CIDR blocks (e.g., 192.168.1.1 or 192.168.1.0/24)."
+  }
 }
 
 variable "tags" {
-    type = map(string)
-    description = "A mapping of tags to assign to the resource."
+  type        = map(string)
+  description = "A mapping of tags to assign to the Key Vault resource."
+  
+  validation {
+    condition = alltrue([
+      for key in keys(var.tags) : length(key) <= 512
+    ])
+    error_message = "Tag keys must be 512 characters or less."
+  }
+  
+  validation {
+    condition = alltrue([
+      for value in values(var.tags) : length(value) <= 256
+    ])
+    error_message = "Tag values must be 256 characters or less."
+  }
 }
 
 # Enhanced security variables

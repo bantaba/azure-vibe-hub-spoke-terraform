@@ -1,110 +1,175 @@
 #############################################################################
-#region DATA SECTION                                                                              
-############################################################################# 
+# DATA SOURCES SECTION
+# This section defines data sources used to retrieve information about the
+# current Azure environment and external services
+#############################################################################
 
+# Get current Azure client configuration (tenant, subscription, object ID)
+# Used for configuring Key Vault access policies and RBAC assignments
 data "azurerm_client_config" "current" {}
-data "azurerm_subscription" "primary" {
-}
-# Get the public IP address
-data "http" "public_ip" {        #https://www.ipify.org/
-  url = "https://api.ipify.org/" #"https://ifconfig.co/ip"    
+
+# Get current Azure subscription details
+# Used for scoping RBAC assignments and resource deployments
+data "azurerm_subscription" "primary" {}
+
+# Get the current public IP address of the deployment agent
+# Used for configuring network access rules and firewall exceptions
+# Source: https://www.ipify.org/ - reliable public IP detection service
+data "http" "public_ip" {
+  url = "https://api.ipify.org/"
 }
 
+#############################################################################
+# RANDOM RESOURCES SECTION
+# This section defines random resources used for generating unique names
+# and secure passwords to ensure resource uniqueness and security
+#############################################################################
+
+# Generate random suffix for Key Vault name to ensure global uniqueness
+# Key Vault names must be globally unique across all Azure tenants
 resource "random_id" "kvault" {
-  byte_length = 3
-  # prefix = "value"
+  byte_length = 3  # Generates 6-character hex string (3 bytes = 6 hex chars)
 }
 
+# Generate random suffix for Storage Account name to ensure global uniqueness
+# Storage Account names must be globally unique across all Azure tenants
 resource "random_id" "sa" {
-  byte_length = 3
-
+  byte_length = 3  # Generates 6-character hex string (3 bytes = 6 hex chars)
 }
 
+# Generate secure random password for VM admin accounts and service accounts
+# Meets Azure complexity requirements with mixed case, numbers, and special characters
 resource "random_password" "pwd_gen" {
-  min_lower   = 4
-  min_upper   = 4
-  min_numeric = 4
-  min_special = 4
-  length      = 25
+  min_lower   = 4   # Minimum lowercase letters
+  min_upper   = 4   # Minimum uppercase letters
+  min_numeric = 4   # Minimum numeric characters
+  min_special = 4   # Minimum special characters
+  length      = 25  # Total password length for enhanced security
 }
 
-#region MODULES SECTION #############################################################################
+#############################################################################
+# MODULES SECTION
+# This section defines all module calls for deploying Azure infrastructure
+# Modules are organized by functional area: networking, security, compute, etc.
+#############################################################################
 
+#############################################################################
+# RESOURCE GROUPS MODULE
+# Creates all resource groups needed for the hub-and-spoke architecture
+# Organizes resources by function: networking, core infrastructure, web tier, data tier
+#############################################################################
 module "rg" {
   source                  = "./modules/resourceGroup"
   resource_group_location = var.location
-  tags                    = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags                    = local.standard_tags
 }
 
-#region NETWORKING
+#############################################################################
+# NETWORKING MODULES
+# Implements hub-and-spoke network architecture with security controls
+# Includes VNet, subnets, NSGs, Bastion host, and network security rules
+#############################################################################
+
+# Virtual Network Module
+# Creates the main hub virtual network with standardized address space
+# Serves as the central connectivity point for all spoke networks
 module "vnet" {
   source      = "./modules/network/vnet"
   depends_on  = [module.rg]
-  vnet_name   = "vnet-wus3"
+  vnet_name   = local.resource_names.vnet_main
   rg_name     = module.rg.rg_name["NetLab"]
   rg_location = module.rg.rg_location["NetLab"]
-  tags        = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags        = local.standard_tags
 }
 
+# Subnet Module
+# Creates multiple subnets for network segmentation and security isolation
+# Includes subnets for: web tier, app tier, data tier, infrastructure, bastion
 module "subnet" {
   source     = "./modules/network/subnet"
   depends_on = [module.vnet]
   rg_name    = module.rg.rg_name["NetLab"]
   vnet       = module.vnet.vnet_name
-  tags       = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags       = local.standard_tags
 }
 
+# Network Security Group Module
+# Implements network security rules with least privilege access principles
+# Includes flow logging for security monitoring and compliance
 module "nsg" {
   source                        = "./modules/network/nsg"
   depends_on                    = [module.subnet]
-  nsg_name                      = "${terraform.workspace}-nsg"
+  nsg_name                      = local.resource_names.nsg_main
   location                      = module.rg.rg_location["NetLab"]
   rg_name                       = module.rg.rg_name["NetLab"]
+  # Associate NSG with all application subnets (excludes AzureBastionSubnet)
   subnet_id                     = [module.subnet.subnet_ids["CachingTierSubnet"], module.subnet.subnet_ids["LabNetSubnet"], module.subnet.subnet_ids["CoreInfraSubnet"], module.subnet.subnet_ids["DB_backendSubnet"], module.subnet.subnet_ids["webFESubnet"]]
-  network_watcher_flow_log_name = "${terraform.workspace}-nsgflow-logs"
+  network_watcher_flow_log_name = "${local.resource_names.nsg_main}-flow-logs"
   law_id                        = module.law.law_id
   law_resource_id               = module.law.law_resource_id
   storage_account_id            = module.CoreInfra_sa.sa_id
-  tags                          = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags                          = local.standard_tags
 }
 
+# Public IP for Azure Bastion
+# Creates a static public IP address for the Bastion host
+# Standard SKU required for Bastion service
 module "bastion_pip" {
   source   = "./modules/network/publicIP"
-  pip_name = "${terraform.workspace}-bastion-pip"
+  pip_name = "${local.resource_names.bastion_main}-${var.resource_abbreviation.public_ip_address}"
   rg_name  = module.rg.rg_name["NetLab"]
   location = module.rg.rg_location["NetLab"]
-  tags     = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD", timestamp())}" }))
+  tags     = local.standard_tags
 }
 
+# Azure Bastion Host Module
+# Provides secure RDP/SSH connectivity to VMs without exposing them to the internet
+# Eliminates the need for jump boxes and reduces attack surface
 module "bastion" {
   source                = "./modules/network/bastion"
-  # bastion_name          = "${terraform.workspace}Bastion}"
-  #     The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. "name": "devBastion}"
+  bastion_name          = local.resource_names.bastion_main
   rg_name               = module.rg.rg_name["NetLab"]
   location              = module.rg.rg_location["NetLab"]
-  ip_configuration_name = "${terraform.workspace}-bastionConfig"
-  subnet_id             = module.subnet.subnet_ids["bastionSubnet"]
+  ip_configuration_name = "${local.resource_names.bastion_main}-config"
+  subnet_id             = module.subnet.subnet_ids["bastionSubnet"]  # Must use AzureBastionSubnet
   public_ip_address_id  = module.bastion_pip.public_ip_id
-  tags                  = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD", timestamp())}" }))
+  tags                  = local.standard_tags
 }
-#endregion NETWORKING
 
+#############################################################################
+# STORAGE MODULES
+# Implements secure storage solutions with encryption and access controls
+# Used for VM diagnostics, scripts, logs, and backup storage
+#############################################################################
+
+# Core Infrastructure Storage Account
+# Provides secure storage for VM diagnostics, scripts, and operational data
+# Configured with encryption at rest, HTTPS-only access, and network restrictions
 module "CoreInfra_sa" {
   source            = "./modules/Storage/stgAccount"
   depends_on        = [module.rg]
   sa_location       = module.rg.rg_location["CoreInfra"]
   sa_rg_name        = module.rg.rg_name["CoreInfra"]
-  sa_name           = "${terraform.workspace}sa${random_id.sa.hex}"
-  sa_container_name = "${terraform.workspace}-scripts"
-  tags              = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  sa_name           = "${local.resource_names.sa_main}${random_id.sa.hex}"  # Append random suffix for uniqueness
+  sa_container_name = "${var.project_name}-scripts-${var.environment}"
+  tags              = local.standard_tags
 }
 
+#############################################################################
+# SECURITY MODULES
+# Implements identity, access management, and secret storage solutions
+# Includes managed identities, Key Vault, and RBAC assignments
+#############################################################################
+
+# User-Assigned Managed Identity
+# Provides secure identity for VMs and services to access Azure resources
+# Eliminates the need for storing credentials in code or configuration
 module "uami" {
   source                   = "./modules/Security/uami"
   uami_location            = module.rg.rg_location["CoreInfra"]
-  uami_name                = "${title(terraform.workspace)}-uami"
+  uami_name                = "${var.project_name}-${var.resource_abbreviation.user_assigned_identity}-main-${var.environment}"
   uami_resource_group_name = module.rg.rg_name["CoreInfra"]
-  tags                     = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags                     = local.standard_tags
 }
 
 # module "uami_role_assignment" {
@@ -116,9 +181,9 @@ module "uami" {
 #   scope                   = module.kvault.kvault_id
 # }
 
-module "aa" { #TODO: Use for_each to upload from single dir
+module "aa" {
   source                = "./modules/automation/account"
-  aa_name               = "${terraform.workspace}-aa"
+  aa_name               = local.resource_names.aa_main
   aa_location           = module.rg.rg_location["CoreInfra"]
   aa_rg                 = module.rg.rg_name["CoreInfra"]
   start_time            = timeadd(timestamp(), "10h")
@@ -126,7 +191,7 @@ module "aa" { #TODO: Use for_each to upload from single dir
   domain_admin_username = module.domain_creds.kvault_secret_name
   domain_safe_mode_pwd  = module.iaasUser.kvault_secret_value
   user_default_pwd      = random_password.pwd_gen.result
-  tags                  = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("DD-MMM-YYYY hh:mm ZZZZ", timestamp())}" }))
+  tags                  = local.standard_tags
 }
 
 module "aa_role_assignment" {
@@ -142,12 +207,12 @@ module "kvault" {
   source                      = "./modules/Security/kvault/vault"
   vault_location              = module.rg.rg_location["CoreInfra"]
   vault_rg_name               = module.rg.rg_name["CoreInfra"]
-  vault_name                  = "${title(terraform.workspace)}-CoreVault"
+  vault_name                  = "${local.resource_names.kv_main}-${random_id.kvault.hex}"
   tenant_id                   = data.azurerm_client_config.current.tenant_id
   network_acls_default_action = "Allow"
-  allowed_ip_ranges           = ["131.107.0.0/16", "${local.ingress_ip_address}"] #var.allowed_ip_rules
+  allowed_ip_ranges           = local.authorized_ip_ranges
   virtual_network_subnet_ids  = [module.subnet.subnet_ids["CachingTierSubnet"], module.subnet.subnet_ids["CoreInfraSubnet"], module.subnet.subnet_ids["DB_backendSubnet"], module.subnet.subnet_ids["LabNetSubnet"], module.subnet.subnet_ids["webFESubnet"]]
-  tags                        = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags                        = local.standard_tags
 }
 
 # grant self/SP KV admin (otherwise, RBAC unauthorized to create keys/Certs/Secrets)
@@ -164,26 +229,26 @@ module "iaasUser" {
   source                 = "./modules/Security/kvault/secret"
   depends_on             = [module.kvault]
   vault_id               = module.kvault.kvault_id
-  vault_secret_name      = "superAdmin"
+  vault_secret_name      = "super-admin-password"
   vault_secret_value     = random_password.pwd_gen.result
-  secret_expiration_date = "2024-12-31T00:00:00Z"
-  tags                   = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  secret_expiration_date = "2025-12-31T00:00:00Z"
+  tags                   = local.standard_tags
 }
 
 module "domain_creds" {
   source                 = "./modules/Security/kvault/secret"
   depends_on             = [module.kvault]
   vault_id               = module.kvault.kvault_id
-  vault_secret_name      = "DomainAdminUser"
+  vault_secret_name      = "domain-admin-password"
   vault_secret_value     = random_password.pwd_gen.result
-  secret_expiration_date = "2024-12-31T00:00:00Z"
-  tags                   = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  secret_expiration_date = "2025-12-31T00:00:00Z"
+  tags                   = local.standard_tags
 }
 
 module "kvault_logging" {
   source             = "./modules/monitoring/monitors/monitor_diagnostics"
   depends_on         = [module.kvault]
-  name               = "${terraform.workspace}-kvault-logging"
+  name               = "${local.resource_names.kv_main}-diagnostics"
   target_resource_id = module.kvault.kvault_id
   storage_account_id = module.CoreInfra_sa.sa_id
 }
@@ -192,23 +257,23 @@ module "law" {
   source     = "./modules/monitoring/law"
   depends_on = [module.CoreInfra_sa]
 
-  law_name                                          = "${terraform.workspace}-law"
+  law_name                                          = local.resource_names.law_main
   law_location                                      = module.rg.rg_location["CoreInfra"]
   law_rg_name                                       = module.rg.rg_name["CoreInfra"]
   automation_acct_id                                = module.aa.automationAcct_id
   log_analytics_storage_insightsStorage_account_id  = module.CoreInfra_sa.sa_id
   log_analytics_storage_insightsStorage_account_key = module.CoreInfra_sa.sa_key
-  law_storage_insights_name                         = "${terraform.workspace}-storageinsightconfig"
-  tags                                              = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("DD-MMM-YYYY hh:mm ZZZZ", timestamp())}" }))
+  law_storage_insights_name                         = "${local.resource_names.law_main}-storage-insights"
+  tags                                              = local.standard_tags
 }
 
 # DSC with AD DC
 module "dc_avset" {
   source         = "./modules/compute/avset"
   avset_location = module.rg.rg_location["CoreInfra"]
-  avset_name     = "dc-avset"
+  avset_name     = "${var.project_name}-${var.resource_abbreviation.availability_set}-dc-${var.environment}"
   avset_rg_name  = module.rg.rg_name["CoreInfra"]
-  tags           = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags           = local.standard_tags
 }
 
 module "DC_VM" {
@@ -223,7 +288,7 @@ module "DC_VM" {
   admin_password           = module.domain_creds.kvault_secret_value
   user_managed_identity_id = module.uami.uami_id
   availability_set_id      = module.dc_avset.availability_set_id
-  tags                     = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("DD-MMM-YYYY hh:mm ZZZZ", timestamp())}" }))
+  tags                     = local.standard_tags
 }
 
 module "DC_VM_ext" {
@@ -238,14 +303,13 @@ module "DC_VM_ext" {
   # analytics_workspace_key = module.law.law_key
 }
 
-#Test VM Domain Join
-
+# Test VM Domain Join
 module "fe_avset" {
   source         = "./modules/compute/avset"
   avset_location = module.rg.rg_location["WebFE"]
-  avset_name     = "fe-avset"
+  avset_name     = "${var.project_name}-${var.resource_abbreviation.availability_set}-fe-${var.environment}"
   avset_rg_name  = module.rg.rg_name["WebFE"]
-  tags           = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("YYYY-MMM-DD hh:mm ZZZ", timestamp())}" }))
+  tags           = local.standard_tags
 }
 
 module "testVM" {
@@ -260,7 +324,7 @@ module "testVM" {
   admin_password           = module.iaasUser.kvault_secret_value
   user_managed_identity_id = module.uami.uami_id
   availability_set_id      = module.fe_avset.availability_set_id
-  tags                     = merge(var.default_tags, tomap({ "Environmet" = "${terraform.workspace}", "DeployedOn" = "${formatdate("DD-MMM-YYYY hh:mm ZZZZ", timestamp())}" }))
+  tags                     = local.standard_tags
 }
 
 

@@ -35,6 +35,12 @@ This project implements a comprehensive Azure infrastructure solution using Terr
 - ✅ **Private Endpoints**: Optional private connectivity for network isolation
 - ✅ **Compliance Validation**: SAST tool integration and security baseline alignment
 
+### Tagging Standardization
+- ✅ **Naming Convention**: Standardized lowercase tag keys with underscores
+- ✅ **Validation Rules**: Automated validation for tag key formatting
+- ✅ **Documentation**: Comprehensive tagging standards and governance guidelines
+- ✅ **Migration Support**: Clear mapping from legacy to standardized tag names
+
 ### Key Security Features Implemented
 - Public network access disabled by default
 - Shared access keys disabled by default
@@ -218,6 +224,7 @@ The infrastructure is validated against:
 ### Setup and Configuration
 - [Storage Module Configuration](docs/setup/storage-module-configuration.md)
 - [Git Automation Setup](docs/setup/git-automation-setup.md)
+- [Tagging Standards and Guidelines](docs/setup/tagging-standards.md)
 
 ### Operations and Troubleshooting
 - [Storage Troubleshooting Guide](docs/operations/storage-troubleshooting.md)

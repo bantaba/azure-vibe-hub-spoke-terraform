@@ -16,17 +16,34 @@ variable "sa_name" {
 }
 
 variable "sa_location" {
-  type = string
-  default = "westUS2"
-  nullable = false
-  description = "Location where the resources will be created."
+  type        = string
+  default     = "westUS2"
+  nullable    = false
+  description = "Location where the resources will be created. Must be a valid Azure region."
+  
+  validation {
+    condition = contains([
+      "eastus", "eastus2", "southcentralus", "westus2", "westus3", "australiaeast",
+      "southeastasia", "northeurope", "swedencentral", "uksouth", "westeurope",
+      "centralus", "northcentralus", "westus", "southafricanorth", "centralindia",
+      "eastasia", "japaneast", "koreacentral", "canadacentral", "francecentral",
+      "germanywestcentral", "norwayeast", "switzerlandnorth", "uaenorth",
+      "brazilsouth", "centraluseuap", "eastus2euap", "qatarcentral", "westcentralus"
+    ], var.sa_location)
+    error_message = "The location must be a valid Azure region."
+  }
 }
 
 variable "sa_rg_name" {
-  type = string
-  sensitive = false
-  nullable = false
-  description = "name of the resource group to create the resource"
+  type        = string
+  sensitive   = false
+  nullable    = false
+  description = "Name of the resource group to create the storage account resource."
+  
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9._-]+$", var.sa_rg_name)) && length(var.sa_rg_name) <= 90
+    error_message = "Resource group name must be alphanumeric with periods, underscores, hyphens allowed. Maximum length is 90 characters."
+  }
 }
 
 variable "account_kind" {
@@ -215,17 +232,31 @@ variable "network_rules_bypass" {
 }
 
 variable "allowed_ip_ranges" {
-  description = "List of public IP or IP ranges in CIDR Format"
+  description = "List of public IP or IP ranges in CIDR Format. Each must be a valid IP address or CIDR block."
   type        = list(string)
   default     = []
   nullable    = false
+  
+  validation {
+    condition = alltrue([
+      for ip_range in var.allowed_ip_ranges : can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}(/[0-9]{1,2})?$", ip_range))
+    ])
+    error_message = "All IP ranges must be valid IP addresses or CIDR blocks (e.g., 192.168.1.1 or 192.168.1.0/24)."
+  }
 }
 
 variable "allowed_subnet_ids" {
-  description = "A list of virtual network subnet ids to secure the storage account"
+  description = "A list of virtual network subnet ids to secure the storage account. Each must be a valid Azure subnet resource ID."
   type        = list(string)
   default     = []
   nullable    = false
+  
+  validation {
+    condition = alltrue([
+      for subnet_id in var.allowed_subnet_ids : can(regex("^/subscriptions/[a-f0-9-]+/resourceGroups/.+/providers/Microsoft.Network/virtualNetworks/.+/subnets/.+$", subnet_id))
+    ])
+    error_message = "All subnet IDs must be valid Azure subnet resource IDs."
+  }
 }
 
 variable "blob_versioning_enabled" {

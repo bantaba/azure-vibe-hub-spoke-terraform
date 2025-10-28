@@ -32,8 +32,9 @@ module "storage_account" {
   sa_container_name = "mycontainer"
   
   tags = {
-    Environment = "Production"
-    Team        = "DevOps"
+    environment = "production"
+    team        = "devops"
+    deployed_via = "terraform"
   }
 }
 ```

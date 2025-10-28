@@ -9,6 +9,7 @@ This directory contains comprehensive documentation for the Terraform security e
 - `setup/` - Setup and configuration guides
   - `git-automation-setup.md` - Git workflow automation setup and configuration
   - `storage-module-configuration.md` - Storage module configuration and examples
+  - `tagging-standards.md` - Standardized tagging conventions and governance
 - `operations/` - Operational procedures and troubleshooting
   - `git-workflow-operations.md` - Daily git operations and maintenance procedures
   - `storage-troubleshooting.md` - Storage account troubleshooting and diagnostics
