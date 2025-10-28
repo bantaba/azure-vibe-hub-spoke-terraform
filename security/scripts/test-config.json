@@ -1,0 +1,89 @@
+{
+  "test_configuration": {
+    "version": "1.0",
+    "description": "Configuration for security workflow integration tests",
+    "test_environment": "integration"
+  },
+  "sast_tools": {
+    "checkov": {
+      "enabled": true,
+      "config_file": "security/sast-tools/.checkov.yaml",
+      "expected_issues": 5,
+      "timeout_seconds": 60
+    },
+    "tfsec": {
+      "enabled": true,
+      "config_file": "security/sast-tools/.tfsec.yml",
+      "expected_issues": 4,
+      "timeout_seconds": 45
+    },
+    "terrascan": {
+      "enabled": true,
+      "config_file": "security/sast-tools/.terrascan_config.toml",
+      "expected_issues": 3,
+      "timeout_seconds": 90
+    }
+  },
+  "pipeline_tests": {
+    "github_actions": {
+      "workflow_file": ".github/workflows/terraform-security-scan.yml",
+      "required_jobs": ["terraform-validate", "security-scan", "terraform-plan"],
+      "required_tools": ["checkov", "tfsec", "terrascan"]
+    },
+    "azure_devops": {
+      "pipeline_files": ["azure-pipelines.yml", "azure-pipelines-release.yml"],
+      "required_stages": ["security", "validation"]
+    },
+    "pre_commit_hooks": {
+      "hook_file": ".git/hooks/pre-commit",
+      "required_checks": ["terraform", "security"]
+    }
+  },
+  "workflow_tests": {
+    "end_to_end": {
+      "test_terraform_files": true,
+      "run_security_scans": true,
+      "generate_reports": true,
+      "validate_outputs": true
+    },
+    "integration_points": {
+      "script_dependencies": true,
+      "configuration_files": true,
+      "directory_structure": true
+    },
+    "error_handling": {
+      "missing_tools": true,
+      "invalid_config": true,
+      "missing_files": true
+    }
+  },
+  "aggregation_tests": {
+    "report_formats": ["json", "html", "markdown"],
+    "dashboard_generation": true,
+    "trend_analysis": true,
+    "baseline_comparison": true
+  },
+  "test_data": {
+    "terraform_files": {
+      "create_test_files": true,
+      "include_security_issues": true,
+      "issue_types": ["storage", "network", "identity", "compute"]
+    },
+    "sample_reports": {
+      "generate_sample_data": true,
+      "historical_data_points": 7,
+      "simulate_trends": true
+    }
+  },
+  "thresholds": {
+    "minimum_success_rate": 90,
+    "maximum_test_duration_minutes": 15,
+    "critical_test_failures": 0,
+    "acceptable_warning_count": 5
+  },
+  "cleanup": {
+    "remove_test_data": true,
+    "preserve_reports": true,
+    "cleanup_timeout_seconds": 30
+  }
+}
