@@ -235,7 +235,11 @@
     - Add troubleshooting documentation for common issues
     - _Requirements: 5.4_
 
-- [-] 8. Create Security Scanning Automation
+- [x] 8. Create Security Scanning Automation
+
+
+
+
 
 
 
