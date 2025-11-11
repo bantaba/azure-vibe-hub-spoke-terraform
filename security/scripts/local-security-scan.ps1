@@ -145,11 +145,11 @@ function Get-RemediationGuidance {
                 "description" = "Ensure Storage Account uses the latest TLS version"
                 "remediation" = @(
                     "Update the storage account configuration to use TLS 1.2:",
-                    "```hcl",
-                    "resource `"azurerm_storage_account`" `"example`" {",
-                    "  min_tls_version = `"TLS1_2`"",
-                    "}",
-                    "```"
+                    '```hcl',
+                    'resource "azurerm_storage_account" "example" {',
+                    '  min_tls_version = "TLS1_2"',
+                    '}',
+                    '```'
                 )
                 "impact" = "Medium - Improves data in transit security"
                 "effort" = "Low - Simple configuration change"
@@ -159,14 +159,14 @@ function Get-RemediationGuidance {
                 "description" = "Set default network access rule to deny"
                 "remediation" = @(
                     "Configure network rules to deny by default:",
-                    "```hcl",
-                    "resource `"azurerm_storage_account`" `"example`" {",
-                    "  network_rules {",
-                    "    default_action = `"Deny`"",
-                    "    ip_rules       = [`"your.allowed.ip.range`"]",
-                    "  }",
-                    "}",
-                    "```"
+                    '```hcl',
+                    'resource "azurerm_storage_account" "example" {',
+                    '  network_rules {',
+                    '    default_action = "Deny"',
+                    '    ip_rules       = ["your.allowed.ip.range"]',
+                    '  }',
+                    '}',
+                    '```'
                 )
                 "impact" = "High - Prevents unauthorized network access"
                 "effort" = "Medium - Requires network planning"
@@ -176,11 +176,11 @@ function Get-RemediationGuidance {
                 "description" = "Set expiration dates on Key Vault keys"
                 "remediation" = @(
                     "Add expiration date to Key Vault keys:",
-                    "```hcl",
-                    "resource `"azurerm_key_vault_key`" `"example`" {",
-                    "  expiration_date = `"2025-12-31T23:59:59Z`"",
-                    "}",
-                    "```"
+                    '```hcl',
+                    'resource "azurerm_key_vault_key" "example" {',
+                    '  expiration_date = "2025-12-31T23:59:59Z"',
+                    '}',
+                    '```'
                 )
                 "impact" = "Medium - Improves key lifecycle management"
                 "effort" = "Low - Add expiration parameter"
@@ -192,11 +192,11 @@ function Get-RemediationGuidance {
                 "description" = "Storage account should deny access by default"
                 "remediation" = @(
                     "Set network rules default action to Deny:",
-                    "```hcl",
-                    "network_rules {",
-                    "  default_action = `"Deny`"",
-                    "}",
-                    "```"
+                    '```hcl',
+                    'network_rules {',
+                    '  default_action = "Deny"',
+                    '}',
+                    '```'
                 )
                 "impact" = "High - Network security improvement"
                 "effort" = "Low - Configuration change"
@@ -206,14 +206,14 @@ function Get-RemediationGuidance {
                 "description" = "Key Vault should have network access restrictions"
                 "remediation" = @(
                     "Configure Key Vault network ACLs:",
-                    "```hcl",
-                    "resource `"azurerm_key_vault`" `"example`" {",
-                    "  network_acls {",
-                    "    default_action = `"Deny`"",
-                    "    ip_rules       = [`"allowed.ip.range`"]",
-                    "  }",
-                    "}",
-                    "```"
+                    '```hcl',
+                    'resource "azurerm_key_vault" "example" {',
+                    '  network_acls {',
+                    '    default_action = "Deny"',
+                    '    ip_rules       = ["allowed.ip.range"]',
+                    '  }',
+                    '}',
+                    '```'
                 )
                 "impact" = "High - Restricts Key Vault access"
                 "effort" = "Medium - Network configuration required"
@@ -225,13 +225,13 @@ function Get-RemediationGuidance {
                 "description" = "Storage account should use customer-managed keys"
                 "remediation" = @(
                     "Configure customer-managed key encryption:",
-                    "```hcl",
-                    "resource `"azurerm_storage_account`" `"example`" {",
-                    "  customer_managed_key {",
-                    "    key_vault_key_id = azurerm_key_vault_key.example.id",
-                    "  }",
-                    "}",
-                    "```"
+                    '```hcl',
+                    'resource "azurerm_storage_account" "example" {',
+                    '  customer_managed_key {',
+                    '    key_vault_key_id = azurerm_key_vault_key.example.id',
+                    '  }',
+                    '}',
+                    '```'
                 )
                 "impact" = "High - Enhanced encryption control"
                 "effort" = "High - Requires Key Vault setup"
