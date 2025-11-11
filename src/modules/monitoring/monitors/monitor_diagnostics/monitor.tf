@@ -8,7 +8,7 @@ resource "azurerm_monitor_diagnostic_setting" "example" {
 
     retention_policy {
       enabled = true
-      days = 14
+      days    = 14
     }
   }
 
@@ -17,7 +17,7 @@ resource "azurerm_monitor_diagnostic_setting" "example" {
 
     retention_policy {
       enabled = true
-      days = 14
+      days    = 14
     }
   }
 }

@@ -7,10 +7,10 @@
 resource "azurerm_key_vault_secret" "kv-secret" {
   name            = var.vault_secret_name  // "${terraform.workspace}secret" //var.secrets
   value           = var.vault_secret_value // random_password.pwd_gen.result
-  key_vault_id    = var.vault_id  // azurerm_key_vault.main-kv.id
+  key_vault_id    = var.vault_id           // azurerm_key_vault.main-kv.id
   content_type    = "password"
   expiration_date = var.secret_expiration_date #"2022-12-31T00:00:00Z"
-  tags            = var.tags  
+  tags            = var.tags
 }
 
 

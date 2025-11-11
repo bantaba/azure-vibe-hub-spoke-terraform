@@ -11,7 +11,7 @@ variable "resource_group_names" {
     K8s_acr     = "k8acr"
   }
   description = "Map of resource group names by purpose. Keys represent the logical grouping, values are the resource group names."
-  
+
   validation {
     condition = alltrue([
       for name in values(var.resource_group_names) : can(regex("^[a-zA-Z0-9._-]+$", name)) && length(name) <= 90
@@ -23,14 +23,14 @@ variable "resource_group_names" {
 variable "tags" {
   type        = map(string)
   description = "A mapping of tags which should be assigned to the Resource Group. All tags will be applied to created resources."
-  
+
   validation {
     condition = alltrue([
       for key in keys(var.tags) : length(key) <= 512
     ])
     error_message = "Tag keys must be 512 characters or less."
   }
-  
+
   validation {
     condition = alltrue([
       for value in values(var.tags) : length(value) <= 256
@@ -42,7 +42,7 @@ variable "tags" {
 variable "resource_group_location" {
   type        = string
   description = "The Azure Region where the Resource Group should exist. Must be a valid Azure region name."
-  
+
   validation {
     condition = contains([
       "eastus", "eastus2", "southcentralus", "westus2", "westus3", "australiaeast",

@@ -1,6 +1,6 @@
 variable "virtual_machine_id" {
-    type = set(string)
-    description = "The ID of the Virtual Machine. Changing this forces a new resource to be created"
+  type        = set(string)
+  description = "The ID of the Virtual Machine. Changing this forces a new resource to be created"
 }
 
 # variable "analytics_workspace_id" {
@@ -57,28 +57,28 @@ variable "virtual_machine_id" {
 # }
 
 variable "location" {
-    type = string
-    description = "Specifies the supported Azure location where the resource exists."
+  type        = string
+  description = "Specifies the supported Azure location where the resource exists."
 }
 
 variable "dsc_server_endpoint" {
-    type = string
-    description = "The endpoint of the DSC server"
+  type        = string
+  description = "The endpoint of the DSC server"
 }
 
 variable "dsc_config" {
-    type = string
-    description = "The DSC Node Configuration name"
+  type        = string
+  description = "The DSC Node Configuration name"
 }
 
 variable "dsc_mode" {
-    type = string
-    default = "ApplyAndMonitor"
-    description = "Specifies how the LCM actually applies the configuration to the target nodes. Possible values are ApplyOnly, ApplyAndMonitor, and ApplyAndAutoCorrect."
+  type        = string
+  default     = "ApplyAndMonitor"
+  description = "Specifies how the LCM actually applies the configuration to the target nodes. Possible values are ApplyOnly, ApplyAndMonitor, and ApplyAndAutoCorrect."
 }
 variable "dsc_primary_access_key" {
-    type = string
-    sensitive = true
-    description = "The DSC Primary/Secondary access key"
+  type        = string
+  sensitive   = true
+  description = "The DSC Primary/Secondary access key"
 }
 

@@ -1,6 +1,4 @@
-locals {
-  ingress_ip_address = trimspace(data.http.public_ip.response_body)
-}
+
 
 variable "location" {
   type        = string
@@ -40,7 +38,7 @@ variable "default_tags" {
     # request_id    = "TBD"
   }
   description = "A mapping of tags which should be assigned to all resources. Uses standardized lowercase naming with underscores."
-  
+
   validation {
     condition = alltrue([
       for key in keys(var.default_tags) : can(regex("^[a-z_]+$", key))
@@ -67,7 +65,7 @@ variable "location_abbreviation" {
     "canadacentral"  = "cac"
     "canadaeast"     = "cae"
   }
-  
+
   validation {
     condition = alltrue([
       for abbr in values(var.location_abbreviation) : can(regex("^[a-z0-9]+$", abbr))
@@ -82,32 +80,32 @@ variable "resource_abbreviation" {
   description = "Standardized abbreviations for Azure resource types following Microsoft Cloud Adoption Framework."
   type        = map(string)
   default = {
-    "resource_group"               = "rg"
-    "virtual_network"              = "vnet"
-    "network_interface"            = "nic"
-    "storage_account"              = "st"
-    "availability_set"             = "avail"
-    "virtual_machine"              = "vm"
-    "virtual_machine_scale_set"    = "vmss"
-    "azure_firewall"               = "afw"
-    "firewall_policy"              = "afwp"
-    "load_balancer_internal"       = "lbi"
-    "load_balancer_external"       = "lbe"
-    "nat_rule"                     = "rule"
-    "public_ip_address"            = "pip"
-    "route_table"                  = "rt"
-    "subnet"                       = "snet"
-    "bastion_host"                 = "bas"
-    "key_vault"                    = "kv"
-    "user_assigned_identity"       = "id"
-    "network_security_group"       = "nsg"
-    "log_analytics_workspace"      = "law"
-    "automation_account"           = "aa"
-    "application_security_group"   = "asg"
-    "private_endpoint"             = "pep"
-    "private_dns_zone"             = "pdz"
+    "resource_group"             = "rg"
+    "virtual_network"            = "vnet"
+    "network_interface"          = "nic"
+    "storage_account"            = "st"
+    "availability_set"           = "avail"
+    "virtual_machine"            = "vm"
+    "virtual_machine_scale_set"  = "vmss"
+    "azure_firewall"             = "afw"
+    "firewall_policy"            = "afwp"
+    "load_balancer_internal"     = "lbi"
+    "load_balancer_external"     = "lbe"
+    "nat_rule"                   = "rule"
+    "public_ip_address"          = "pip"
+    "route_table"                = "rt"
+    "subnet"                     = "snet"
+    "bastion_host"               = "bas"
+    "key_vault"                  = "kv"
+    "user_assigned_identity"     = "id"
+    "network_security_group"     = "nsg"
+    "log_analytics_workspace"    = "law"
+    "automation_account"         = "aa"
+    "application_security_group" = "asg"
+    "private_endpoint"           = "pep"
+    "private_dns_zone"           = "pdz"
   }
-  
+
   validation {
     condition = alltrue([
       for abbr in values(var.resource_abbreviation) : can(regex("^[a-z0-9]+$", abbr))
@@ -126,7 +124,7 @@ variable "dc_vm_names" {
   type        = set(string)
   default     = ["W3DC01"]
   description = "Name(s) of the Windows Domain Controller VMs"
-  
+
   validation {
     condition = alltrue([
       for name in var.dc_vm_names : can(regex("^[A-Za-z0-9]+$", name)) && length(name) <= 15
@@ -140,7 +138,7 @@ variable "environment" {
   type        = string
   default     = "dev"
   description = "Environment name (dev, staging, prod)"
-  
+
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
     error_message = "Environment must be one of: dev, staging, prod."
@@ -152,7 +150,7 @@ variable "project_name" {
   type        = string
   default     = "hubspoke"
   description = "Project name used in resource naming"
-  
+
   validation {
     condition     = can(regex("^[a-z0-9]+$", var.project_name)) && length(var.project_name) <= 10
     error_message = "Project name must be lowercase alphanumeric and 10 characters or less."
@@ -165,12 +163,12 @@ locals {
   naming_convention = {
     prefix = "${var.project_name}-${var.environment}-${var.location_abbreviation[var.location]}"
   }
-  
+
   # Common tags applied to all resources
   common_tags = merge(var.default_tags, {
-    environment   = var.environment
-    project       = var.project_name
-    deployed_on   = formatdate("YYYY-MM-DD", timestamp())
-    terraform_ws  = terraform.workspace
+    environment  = var.environment
+    project      = var.project_name
+    deployed_on  = formatdate("YYYY-MM-DD", timestamp())
+    terraform_ws = terraform.workspace
   })
 }

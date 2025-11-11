@@ -5,12 +5,12 @@
 #############################################################################
 
 resource "azurerm_bastion_host" "bastion" {
-  name                = var.bastion_name
-  location            = var.location
-  resource_group_name = var.rg_name
-  sku = var.sku
-  ip_connect_enabled = var.ip_connect_enabled
-  scale_units = var.scale_units
+  name                   = var.bastion_name
+  location               = var.location
+  resource_group_name    = var.rg_name
+  sku                    = var.sku
+  ip_connect_enabled     = var.ip_connect_enabled
+  scale_units            = var.scale_units
   shareable_link_enabled = var.shareable_link_enabled
 
   ip_configuration {
@@ -20,5 +20,5 @@ resource "azurerm_bastion_host" "bastion" {
   }
 
   tunneling_enabled = var.tunneling_enabled
-  tags = var.tags 
+  tags              = var.tags
 }

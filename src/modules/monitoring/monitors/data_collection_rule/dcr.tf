@@ -1,5 +1,5 @@
 resource "azurerm_monitor_data_collection_rule" "dcr" {
-  name                = var.dcr_name 
+  name                = var.dcr_name
   resource_group_name = var.dcr_rg_name
   location            = var.dcr_rg_location
 
@@ -10,7 +10,7 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
     }
 
     azure_monitor_metrics {
-      name = "test-destination-metrics" 
+      name = "test-destination-metrics"
     }
   }
 
@@ -33,7 +33,7 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
 
     performance_counter {
       streams                       = var.performance_counter_streams
-      sampling_frequency_in_seconds = 60 
+      sampling_frequency_in_seconds = 60
       name                          = "test-datasource-perfcounter"
       counter_specifiers            = var.counter_specifiers
     }
@@ -57,14 +57,14 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
   }
 
   description = "test data collection rule example"
-  tags = var.tags
+  tags        = var.tags
 }
 
 # associate to a Data Collection Rule
 resource "azurerm_monitor_data_collection_rule_association" "dcr_association" {
-    name                    = "example1-dcra"
-    for_each = var.target_resource_id
-    target_resource_id      = each.key
-    data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr.id
-    description             = "test-example-dcr-association"
+  name                    = "example1-dcra"
+  for_each                = var.target_resource_id
+  target_resource_id      = each.key
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.dcr.id
+  description             = "test-example-dcr-association"
 }

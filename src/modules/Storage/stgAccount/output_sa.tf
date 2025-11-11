@@ -126,36 +126,36 @@ output "min_tls_version" {
 
 output "sa_container_name" {
   description = "The name of the primary storage container"
-  value       = azurerm_storage_container.container.name
+  value       = azurerm_storage_container.sa_container.name
   sensitive   = false
 }
 
 output "sa_container_id" {
   description = "The resource ID of the primary storage container"
-  value       = azurerm_storage_container.container.id
+  value       = azurerm_storage_container.sa_container.id
   sensitive   = false
 }
 
 output "sa_details" {
   description = "Complete details of the storage account including all properties and configuration"
   value = {
-    id                              = azurerm_storage_account.sa.id
-    name                            = azurerm_storage_account.sa.name
-    location                        = azurerm_storage_account.sa.location
-    resource_group_name             = azurerm_storage_account.sa.resource_group_name
-    account_tier                    = azurerm_storage_account.sa.account_tier
-    account_replication_type        = azurerm_storage_account.sa.account_replication_type
-    account_kind                    = azurerm_storage_account.sa.account_kind
-    access_tier                     = azurerm_storage_account.sa.access_tier
-    enable_https_traffic_only       = azurerm_storage_account.sa.enable_https_traffic_only
-    min_tls_version                 = azurerm_storage_account.sa.min_tls_version
-    public_network_access_enabled   = azurerm_storage_account.sa.public_network_access_enabled
+    id                                = azurerm_storage_account.sa.id
+    name                              = azurerm_storage_account.sa.name
+    location                          = azurerm_storage_account.sa.location
+    resource_group_name               = azurerm_storage_account.sa.resource_group_name
+    account_tier                      = azurerm_storage_account.sa.account_tier
+    account_replication_type          = azurerm_storage_account.sa.account_replication_type
+    account_kind                      = azurerm_storage_account.sa.account_kind
+    access_tier                       = azurerm_storage_account.sa.access_tier
+    enable_https_traffic_only         = azurerm_storage_account.sa.enable_https_traffic_only
+    min_tls_version                   = azurerm_storage_account.sa.min_tls_version
+    public_network_access_enabled     = azurerm_storage_account.sa.public_network_access_enabled
     infrastructure_encryption_enabled = azurerm_storage_account.sa.infrastructure_encryption_enabled
-    primary_blob_endpoint           = azurerm_storage_account.sa.primary_blob_endpoint
-    primary_queue_endpoint          = azurerm_storage_account.sa.primary_queue_endpoint
-    primary_table_endpoint          = azurerm_storage_account.sa.primary_table_endpoint
-    primary_file_endpoint           = azurerm_storage_account.sa.primary_file_endpoint
-    tags                            = azurerm_storage_account.sa.tags
+    primary_blob_endpoint             = azurerm_storage_account.sa.primary_blob_endpoint
+    primary_queue_endpoint            = azurerm_storage_account.sa.primary_queue_endpoint
+    primary_table_endpoint            = azurerm_storage_account.sa.primary_table_endpoint
+    primary_file_endpoint             = azurerm_storage_account.sa.primary_file_endpoint
+    tags                              = azurerm_storage_account.sa.tags
   }
   sensitive = false
 }

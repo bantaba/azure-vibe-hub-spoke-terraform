@@ -39,18 +39,18 @@ variable "subnets" {
 }
 
 variable "vnet" {
-    type = string
-    description = "The name of the virtual network to which to attach the subnet."
+  type        = string
+  description = "The name of the virtual network to which to attach the subnet."
 }
 
 variable "rg_name" {
-    type = string
-    description = "The name of the resource group in which to create the subnet."
+  type        = string
+  description = "The name of the resource group in which to create the subnet."
 }
 
 variable "tags" {
   type        = map(string)
-  description = "A mapping of tags which should be assigned to the Resource Group."  
+  description = "A mapping of tags which should be assigned to the Resource Group."
 }
 
 variable "location" {

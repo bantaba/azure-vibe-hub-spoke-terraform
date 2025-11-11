@@ -26,12 +26,12 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = var.rg_name
   location            = var.rg_location
   address_space       = var.vnet_address_space
-  
+
   # DNS Configuration:
   # - 192.168.10.4: Domain Controller (primary DNS)
   # - 1.1.1.1: Cloudflare public DNS (fallback)
   dns_servers = ["192.168.10.4", "1.1.1.1"]
-  
+
   tags = var.tags
 }
 

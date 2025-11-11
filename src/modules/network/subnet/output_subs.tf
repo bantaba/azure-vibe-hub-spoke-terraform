@@ -7,8 +7,8 @@ output "map_of_subnet_id" {
 
 output "subnet_ids" {
   description = "The name of the subnet addresses"
-  value       = {for k, v in azurerm_subnet.PrivateSubs: k => v.id}
-} 
+  value       = { for k, v in azurerm_subnet.PrivateSubs : k => v.id }
+}
 
 
 output "azure_subnet_id" {

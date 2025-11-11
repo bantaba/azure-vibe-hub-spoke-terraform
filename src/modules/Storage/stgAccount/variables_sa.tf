@@ -1,18 +1,18 @@
 variable "sa_name" {
-    type = string
-    nullable = false
+  type     = string
+  nullable = false
 
-    validation { # check for valid name char
-      condition = can(regex("^[a-z0-9]{3,24}$", var.sa_name))
-      error_message = "The storage_account_name resource variable name must be between 3-24 characters in length, and contains only lowercase numbers and letters."
-    }
+  validation { # check for valid name char
+    condition     = can(regex("^[a-z0-9]{3,24}$", var.sa_name))
+    error_message = "The storage_account_name resource variable name must be between 3-24 characters in length, and contains only lowercase numbers and letters."
+  }
 
-    # validation {
-    #   condition = length(var.sa_name) >=3 && length(var.sa_name ) <= 24
-    #   error_message = "The storage_account_name resource variable name must be between 3-24 characters in length."
-    # }
+  # validation {
+  #   condition = length(var.sa_name) >=3 && length(var.sa_name ) <= 24
+  #   error_message = "The storage_account_name resource variable name must be between 3-24 characters in length."
+  # }
 
-    description = "Name of the storage account"
+  description = "Name of the storage account"
 }
 
 variable "sa_location" {
@@ -20,7 +20,7 @@ variable "sa_location" {
   default     = "westUS2"
   nullable    = false
   description = "Location where the resources will be created. Must be a valid Azure region."
-  
+
   validation {
     condition = contains([
       "eastus", "eastus2", "southcentralus", "westus2", "westus3", "australiaeast",
@@ -39,7 +39,7 @@ variable "sa_rg_name" {
   sensitive   = false
   nullable    = false
   description = "Name of the resource group to create the storage account resource."
-  
+
   validation {
     condition     = can(regex("^[a-zA-Z0-9._-]+$", var.sa_rg_name)) && length(var.sa_rg_name) <= 90
     error_message = "Resource group name must be alphanumeric with periods, underscores, hyphens allowed. Maximum length is 90 characters."
@@ -49,8 +49,8 @@ variable "sa_rg_name" {
 variable "account_kind" {
   description = "Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2"
   type        = string
-  sensitive = false
-  nullable = false
+  sensitive   = false
+  nullable    = false
   default     = "StorageV2"
 
   validation {
@@ -62,8 +62,8 @@ variable "account_kind" {
 variable "account_tier" {
   description = "Defines the Tier to use for this storage account (Standard or Premium)."
   type        = string
-  sensitive = false
-  nullable = false
+  sensitive   = false
+  nullable    = false
   default     = "Standard"
 
   validation {
@@ -76,11 +76,11 @@ variable "account_tier" {
 variable "replication_type" {
   description = "Storage account replication type - i.e. LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS."
   type        = string
-  nullable = false
-  default = "LRS"
+  nullable    = false
+  default     = "LRS"
 
   validation {
-    condition = (contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.replication_type))
+    condition     = (contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.replication_type))
     error_message = "Replication account must of one of the following LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS."
   }
 }
@@ -88,7 +88,7 @@ variable "replication_type" {
 variable "enable_https_traffic_only" {
   description = "Forces HTTPS if enabled."
   type        = bool
-  nullable = false
+  nullable    = false
   default     = true
 
   validation {
@@ -100,7 +100,7 @@ variable "enable_https_traffic_only" {
 variable "min_tls_version" {
   description = "The minimum supported TLS version for the storage account."
   type        = string
-  nullable = false
+  nullable    = false
   default     = "TLS1_2"
 }
 
@@ -113,66 +113,66 @@ variable "infrastructure_encryption_enabled" {
 variable "container_delete_retention_days" {
   description = "Retention days for deleted container. Valid value is between 1 and 365 (set to 0 to disable)."
   type        = number
-  nullable = false
+  nullable    = false
   default     = 7
 }
 
 variable "sa_container_name" {
-    type = string
-    nullable = false
-    description = "The name of the Container which should be created within the Storage Account. Changing this forces a new resource to be created."
+  type        = string
+  nullable    = false
+  description = "The name of the Container which should be created within the Storage Account. Changing this forces a new resource to be created."
 
-    validation { # check for valid name char # ([a-zA-Z0-9-]* == [\w-]*) 
-      condition = can(regex("^[a-z0-9-]{3,24}$", var.sa_container_name))
-      error_message = "The storage_account_name resource variable name must be between 3-24 characters in length, and only lowercase alphanumeric characters and hyphens allowed."
-    }
+  validation { # check for valid name char # ([a-zA-Z0-9-]* == [\w-]*) 
+    condition     = can(regex("^[a-z0-9-]{3,24}$", var.sa_container_name))
+    error_message = "The storage_account_name resource variable name must be between 3-24 characters in length, and only lowercase alphanumeric characters and hyphens allowed."
+  }
 }
 
 variable "sa_blob_type" {
-    type = string
-    nullable = false
-    default = "Block"
-    description = "he type of the storage blob to be created. Possible values are Append, Block or Page."
+  type        = string
+  nullable    = false
+  default     = "Block"
+  description = "he type of the storage blob to be created. Possible values are Append, Block or Page."
 
-    validation {
-      condition = (contains(["Append", "Block", "Page"], var.sa_blob_type))    
-      error_message = "Invalid input, can be one of the following: \"Append\", \"Block\", or \"Page\"."
-    }    
+  validation {
+    condition     = (contains(["Append", "Block", "Page"], var.sa_blob_type))
+    error_message = "Invalid input, can be one of the following: \"Append\", \"Block\", or \"Page\"."
+  }
 }
 
 variable "container_access_type" {
-    type = string
-    default = "private"
-    nullable = false
-    description = "The Access Level configured for this Container. Possible values are blob, container or private. Defaults to private."
+  type        = string
+  default     = "private"
+  nullable    = false
+  description = "The Access Level configured for this Container. Possible values are blob, container or private. Defaults to private."
 
-    validation {
-      condition = (contains(["blob", "container", "private"], var.container_access_type))    
-      error_message = "Invalid input, can be one of the following: \"blob\", \"container\", or \"private\"."
-    }
+  validation {
+    condition     = (contains(["blob", "container", "private"], var.container_access_type))
+    error_message = "Invalid input, can be one of the following: \"blob\", \"container\", or \"private\"."
+  }
 }
 
 variable "access_tier" {
-    type = string
-    default = "Hot"
-    nullable = false
-    description = "Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot and Cool, defaults to Hot."
+  type        = string
+  default     = "Hot"
+  nullable    = false
+  description = "Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot and Cool, defaults to Hot."
 
-    validation {
-      condition = (contains(["Hot", "Cool"], var.access_tier))    
-      error_message = "Invalid input, can be one of: \"Hot\", or \"Cool\"."
-    }
+  validation {
+    condition     = (contains(["Hot", "Cool"], var.access_tier))
+    error_message = "Invalid input, can be one of: \"Hot\", or \"Cool\"."
+  }
 }
 
 variable "allow_nested_items_to_be_public" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "(optional) describe your variable"
 }
 
 variable "tags" {
-  type = map(string)
-  nullable = false
+  type        = map(string)
+  nullable    = false
   description = "tags to be applied to resources"
 }
 
@@ -210,7 +210,7 @@ variable "network_rules_default_action" {
   type        = string
   default     = "Deny"
   nullable    = false
-  
+
   validation {
     condition     = contains(["Allow", "Deny"], var.network_rules_default_action)
     error_message = "The network_rules_default_action must be either 'Allow' or 'Deny'."
@@ -222,7 +222,7 @@ variable "network_rules_bypass" {
   type        = set(string)
   default     = ["AzureServices", "Logging", "Metrics"]
   nullable    = false
-  
+
   validation {
     condition = alltrue([
       for bypass in var.network_rules_bypass : contains(["AzureServices", "Logging", "Metrics", "None"], bypass)
@@ -236,7 +236,7 @@ variable "allowed_ip_ranges" {
   type        = list(string)
   default     = []
   nullable    = false
-  
+
   validation {
     condition = alltrue([
       for ip_range in var.allowed_ip_ranges : can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}(/[0-9]{1,2})?$", ip_range))
@@ -250,7 +250,7 @@ variable "allowed_subnet_ids" {
   type        = list(string)
   default     = []
   nullable    = false
-  
+
   validation {
     condition = alltrue([
       for subnet_id in var.allowed_subnet_ids : can(regex("^/subscriptions/[a-f0-9-]+/resourceGroups/.+/providers/Microsoft.Network/virtualNetworks/.+/subnets/.+$", subnet_id))
@@ -285,7 +285,7 @@ variable "blob_delete_retention_days" {
   type        = number
   default     = 30
   nullable    = false
-  
+
   validation {
     condition     = var.blob_delete_retention_days >= 0 && var.blob_delete_retention_days <= 365
     error_message = "The blob_delete_retention_days must be between 0 and 365."

@@ -1,7 +1,7 @@
 
-resource "azurerm_key_vault_certificate" "kv-testCert" {  
+resource "azurerm_key_vault_certificate" "kv-testCert" {
   name         = var.kvCertName #"${terraform.workspace}Cert"
-  key_vault_id = var.kvId  #azurerm_key_vault.main-kv.id
+  key_vault_id = var.kvId       #azurerm_key_vault.main-kv.id
   certificate_policy {
     issuer_parameters {
       name = var.certIssuer
@@ -46,7 +46,7 @@ resource "azurerm_key_vault_certificate" "kv-testCert" {
         dns_names = var.san_dnsNames
       }
 
-      subject            = var.subject # "CN=${terraform.workspace}-cert"
+      subject            = var.subject          # "CN=${terraform.workspace}-cert"
       validity_in_months = var.validityInMonths # 12
     }
   }

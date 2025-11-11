@@ -1,19 +1,19 @@
 resource "azurerm_windows_virtual_machine_scale_set" "vmss" {
-  name                = var.vmss_name 
-  resource_group_name = var.vmss_rg_name
-  location            = var.vmss_location
-  sku                 = var.sku 
-  upgrade_mode = var.upgrade_mode 
-  instances           = var.instances
-  admin_username      = var.admin_user_name
-  admin_password      = var.admin_user_password
+  name                         = var.vmss_name
+  resource_group_name          = var.vmss_rg_name
+  location                     = var.vmss_location
+  sku                          = var.sku
+  upgrade_mode                 = var.upgrade_mode
+  instances                    = var.instances
+  admin_username               = var.admin_user_name
+  admin_password               = var.admin_user_password
   extension_operations_enabled = true
-  platform_fault_domain_count = var.platform_fault_domain_count
-  provision_vm_agent = true
-  vtpm_enabled = false
-  enable_automatic_updates = false
-  encryption_at_host_enabled = false
-   secure_boot_enabled = true
+  platform_fault_domain_count  = var.platform_fault_domain_count
+  provision_vm_agent           = true
+  vtpm_enabled                 = false
+  enable_automatic_updates     = false
+  encryption_at_host_enabled   = false
+  secure_boot_enabled          = true
 
   # automatic_instance_repair {#"Automatic repairs not supported for this Virtual Machine Scale Set because a health probe or health extension was not provided."
   #   enabled = false
@@ -32,15 +32,15 @@ resource "azurerm_windows_virtual_machine_scale_set" "vmss" {
 
   automatic_os_upgrade_policy { #Automatic OS Upgrade is not supported for this Virtual Machine Scale Set because a health probe or health extension was not specified."
     enable_automatic_os_upgrade = false
-    disable_automatic_rollback = false #Microsoft.Compute/EncryptionAtHost' feature is not enabled for this subscription
-  }
-  
-  identity {
-    type = "UserAssigned"
-    identity_ids = [ "${var.user_managed_identity_id}" ]
+    disable_automatic_rollback  = false #Microsoft.Compute/EncryptionAtHost' feature is not enabled for this subscription
   }
 
- source_image_reference {
+  identity {
+    type         = "UserAssigned"
+    identity_ids = ["${var.user_managed_identity_id}"]
+  }
+
+  source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
     sku       = "2022-datacenter-azure-edition"
@@ -77,9 +77,9 @@ resource "azurerm_monitor_autoscale_setting" "vmss_auto_scale" {
     name = "${title(terraform.workspace)}DefaultProfile"
 
     capacity {
-      default = 2 #auto_scale_default
-      minimum = 2 #auto_scale_min
-      maximum = 10  #auto_scale_max
+      default = 2  #auto_scale_default
+      minimum = 2  #auto_scale_min
+      maximum = 10 #auto_scale_max
     }
 
     rule {
@@ -149,7 +149,7 @@ resource "azurerm_monitor_autoscale_setting" "vmss_auto_scale" {
 #region vmss ext
 
 resource "azurerm_virtual_machine_scale_set_extension" "BGInfoExt" {
-  depends_on = [    azurerm_windows_virtual_machine_scale_set.vmss  ]
+  depends_on                   = [azurerm_windows_virtual_machine_scale_set.vmss]
   name                         = "BGInfoExt"
   virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
   publisher                    = "Microsoft.Compute"
@@ -158,22 +158,22 @@ resource "azurerm_virtual_machine_scale_set_extension" "BGInfoExt" {
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "DependencyAgentWindowsExt" {
-  depends_on = [    azurerm_windows_virtual_machine_scale_set.vmss  ]
-  name                       = "DependencyAgentWindows"
-  
+  depends_on = [azurerm_windows_virtual_machine_scale_set.vmss]
+  name       = "DependencyAgentWindows"
+
   virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = true
-  publisher                  = "Microsoft.Azure.Monitoring.DependencyAgent"
-  type                       = "DependencyAgentWindows"
-  type_handler_version       = "9.6"
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = true
+  publisher                    = "Microsoft.Azure.Monitoring.DependencyAgent"
+  type                         = "DependencyAgentWindows"
+  type_handler_version         = "9.6"
 
   settings = <<SETTINGS
         {
           "workspaceId": "${var.analytics_workspace_id}"
         }
 SETTINGS
- 
+
   protected_settings = <<PROTECTED_SETTINGS
         {
           "workspaceKey": "${var.analytics_workspace_key}"
@@ -182,32 +182,32 @@ PROTECTED_SETTINGS
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "AzureMonitorExt" {
-  depends_on = [    
+  depends_on = [
     azurerm_windows_virtual_machine_scale_set.vmss,
-    azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt  
+    azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt
   ]
-  name                       = "AzureMonitorWindowsAgent"
-  
-  virtual_machine_scale_set_id= azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = true
-  publisher                  = "Microsoft.Azure.Monitor"
-  type                       = "AzureMonitorWindowsAgent"
-  type_handler_version       = "1.11"
+  name = "AzureMonitorWindowsAgent"
+
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = true
+  publisher                    = "Microsoft.Azure.Monitor"
+  type                         = "AzureMonitorWindowsAgent"
+  type_handler_version         = "1.11"
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "CustomScriptExt" {
-  depends_on = [    
+  depends_on = [
     azurerm_windows_virtual_machine_scale_set.vmss,
     azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt,
     azurerm_virtual_machine_scale_set_extension.AzureMonitorExt
   ]
-  name                 = "CustomScriptExtension"
-  virtual_machine_scale_set_id= azurerm_windows_virtual_machine_scale_set.vmss.id
-  publisher            = "Microsoft.Compute" 
-  auto_upgrade_minor_version = true
-  type                 = "CustomScriptExtension"
-  type_handler_version = "1.10"
+  name                         = "CustomScriptExtension"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  publisher                    = "Microsoft.Compute"
+  auto_upgrade_minor_version   = true
+  type                         = "CustomScriptExtension"
+  type_handler_version         = "1.10"
 
   settings = <<SETTINGS
         {}
@@ -226,37 +226,37 @@ resource "azurerm_virtual_machine_scale_set_extension" "CustomScriptExt" {
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "GenevaMonitoringExt" {
-  depends_on = [    
+  depends_on = [
     azurerm_windows_virtual_machine_scale_set.vmss,
     azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt,
     azurerm_virtual_machine_scale_set_extension.AzureMonitorExt,
-    azurerm_virtual_machine_scale_set_extension.CustomScriptExt    
+    azurerm_virtual_machine_scale_set_extension.CustomScriptExt
   ]
-  name                       = "GenevaMonitoring"
-  virtual_machine_scale_set_id        = azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = true
-  publisher                  = "Microsoft.Azure.Geneva"
-  type                       = "GenevaMonitoring"
-  type_handler_version       = "2.5"
+  name                         = "GenevaMonitoring"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = true
+  publisher                    = "Microsoft.Azure.Geneva"
+  type                         = "GenevaMonitoring"
+  type_handler_version         = "2.5"
 }
 
 
 resource "azurerm_virtual_machine_scale_set_extension" "IaaSAntimalwareExt" {
-  depends_on = [    
+  depends_on = [
     azurerm_windows_virtual_machine_scale_set.vmss,
     azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt,
     azurerm_virtual_machine_scale_set_extension.AzureMonitorExt,
     azurerm_virtual_machine_scale_set_extension.CustomScriptExt,
-    azurerm_virtual_machine_scale_set_extension.GenevaMonitoringExt   
+    azurerm_virtual_machine_scale_set_extension.GenevaMonitoringExt
   ]
-  name                       = "IaaSAntimalware"
-  virtual_machine_scale_set_id        = azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = false
-  publisher                  = "Microsoft.Azure.Security"
-  type                       = "IaaSAntimalware"
-  type_handler_version       = "1.3"
+  name                         = "IaaSAntimalware"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = false
+  publisher                    = "Microsoft.Azure.Security"
+  type                         = "IaaSAntimalware"
+  type_handler_version         = "1.3"
 
   settings = <<SETTINGS
     { 
@@ -283,37 +283,37 @@ resource "azurerm_virtual_machine_scale_set_extension" "IaaSAntimalwareExt" {
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "AzurePolicyExt" {
-  depends_on = [    
+  depends_on = [
     azurerm_windows_virtual_machine_scale_set.vmss,
     azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt,
     azurerm_virtual_machine_scale_set_extension.AzureMonitorExt,
     azurerm_virtual_machine_scale_set_extension.CustomScriptExt,
     azurerm_virtual_machine_scale_set_extension.GenevaMonitoringExt,
     azurerm_virtual_machine_scale_set_extension.IaaSAntimalwareExt,
-    azurerm_virtual_machine_scale_set_extension.BGInfoExt     
+    azurerm_virtual_machine_scale_set_extension.BGInfoExt
   ]
-  name                       = "AzurePolicyforWindows"
-  virtual_machine_scale_set_id        = azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = true
-  publisher                  = "Microsoft.GuestConfiguration"
-  type                       = "ConfigurationforWindows"
-  type_handler_version       = "1.0"
+  name                         = "AzurePolicyforWindows"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = true
+  publisher                    = "Microsoft.GuestConfiguration"
+  type                         = "ConfigurationforWindows"
+  type_handler_version         = "1.0"
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "GuestHealthWindowsAgentExt" {
-  depends_on = [    azurerm_windows_virtual_machine_scale_set.vmss  ]
-  name                       = "GuestHealthWindowsAgent"
-  virtual_machine_scale_set_id        = azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = false
-  publisher                  = "Microsoft.Azure.Monitor.VirtualMachines.GuestHealth"
-  type                       = "GuestHealthWindowsAgent"
-  type_handler_version       = "1.0"
+  depends_on                   = [azurerm_windows_virtual_machine_scale_set.vmss]
+  name                         = "GuestHealthWindowsAgent"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = false
+  publisher                    = "Microsoft.Azure.Monitor.VirtualMachines.GuestHealth"
+  type                         = "GuestHealthWindowsAgent"
+  type_handler_version         = "1.0"
 }
 
 resource "azurerm_virtual_machine_scale_set_extension" "KeyVaultExtensionForWindows" {
-  depends_on = [    
+  depends_on = [
     azurerm_windows_virtual_machine_scale_set.vmss,
     azurerm_virtual_machine_scale_set_extension.DependencyAgentWindowsExt,
     azurerm_virtual_machine_scale_set_extension.AzureMonitorExt,
@@ -321,17 +321,17 @@ resource "azurerm_virtual_machine_scale_set_extension" "KeyVaultExtensionForWind
     azurerm_virtual_machine_scale_set_extension.GenevaMonitoringExt,
     azurerm_virtual_machine_scale_set_extension.IaaSAntimalwareExt,
     azurerm_virtual_machine_scale_set_extension.BGInfoExt,
-    azurerm_virtual_machine_scale_set_extension.AzurePolicyExt   
+    azurerm_virtual_machine_scale_set_extension.AzurePolicyExt
   ]
-  
-  name                       = "KeyVaultForWindows"
-  virtual_machine_scale_set_id        = azurerm_windows_virtual_machine_scale_set.vmss.id
-  auto_upgrade_minor_version = true
-  automatic_upgrade_enabled  = true
-  publisher                  = "Microsoft.azure.keyvault"
-  type                       = "KeyVaultForWindows"
-  type_handler_version       = "1.0"
-  settings = <<SETTINGS
+
+  name                         = "KeyVaultForWindows"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  auto_upgrade_minor_version   = true
+  automatic_upgrade_enabled    = true
+  publisher                    = "Microsoft.azure.keyvault"
+  type                         = "KeyVaultForWindows"
+  type_handler_version         = "1.0"
+  settings                     = <<SETTINGS
       {
         "secretsManagementSettings": {
         "pollingIntervalInS": "3600",
@@ -360,11 +360,11 @@ resource "azurerm_virtual_machine_scale_set_extension" "domain-join" {
     azurerm_virtual_machine_scale_set_extension.GuestHealthWindowsAgentExt,
     azurerm_virtual_machine_scale_set_extension.KeyVaultExtensionForWindows
   ]
-  
-  virtual_machine_scale_set_id        = azurerm_windows_virtual_machine_scale_set.vmss.id
-  publisher = "Microsoft.Compute"
-  type = "JsonADDomainExtension"
-  type_handler_version = "1.3"
+
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.vmss.id
+  publisher                    = "Microsoft.Compute"
+  type                         = "JsonADDomainExtension"
+  type_handler_version         = "1.3"
 
   settings = <<SETTINGS
     {

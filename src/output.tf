@@ -4,9 +4,9 @@ output "agent_ip" {
   value       = local.ingress_ip_address
 }
 
-output "bastion_fqdn" {
-  description = "The FQDN of the Azure Bastion host for secure VM access"
-  value       = module.bastion.bastion_fqdn
+output "bastion_id" {
+  description = "The resource ID of the Azure Bastion host for secure VM access"
+  value       = module.bastion.bastionID
   sensitive   = false
 }
 

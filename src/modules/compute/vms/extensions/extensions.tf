@@ -3,7 +3,7 @@
 resource "azurerm_virtual_machine_extension" "GenevaMonitoringExt" {
   # depends_on = [ azurerm_virtual_machine_extension.DependencyAgentWindowsExt ]
   name                       = "GenevaMonitoring"
-  for_each = var.virtual_machine_id
+  for_each                   = var.virtual_machine_id
   virtual_machine_id         = each.value
   auto_upgrade_minor_version = true
   automatic_upgrade_enabled  = true
@@ -14,7 +14,7 @@ resource "azurerm_virtual_machine_extension" "GenevaMonitoringExt" {
 
 resource "azurerm_virtual_machine_extension" "IaaSAntimalwareExt" {
   name                       = "IaaSAntimalware"
-  for_each = var.virtual_machine_id
+  for_each                   = var.virtual_machine_id
   virtual_machine_id         = each.value
   auto_upgrade_minor_version = true
   automatic_upgrade_enabled  = false
@@ -48,8 +48,8 @@ resource "azurerm_virtual_machine_extension" "IaaSAntimalwareExt" {
 
 resource "azurerm_virtual_machine_extension" "NetworkWatcherExt" {
   name                       = "NetworkWatcher"
-  for_each = var.virtual_machine_id
-  virtual_machine_id = each.value
+  for_each                   = var.virtual_machine_id
+  virtual_machine_id         = each.value
   auto_upgrade_minor_version = true
   automatic_upgrade_enabled  = true
   publisher                  = "Microsoft.Azure.NetworkWatcher"
@@ -58,7 +58,7 @@ resource "azurerm_virtual_machine_extension" "NetworkWatcherExt" {
 }
 
 resource "azurerm_virtual_machine_extension" "dsc" {
-  name                 = "PoshDSC"  
+  name                 = "PoshDSC"
   for_each             = var.virtual_machine_id
   virtual_machine_id   = each.value
   publisher            = "Microsoft.Powershell"
@@ -100,7 +100,7 @@ resource "azurerm_virtual_machine_extension" "dsc" {
 #region                   VM autoshutdown
 #############################################################################
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "auto_shutdown" {
-  for_each = var.virtual_machine_id
+  for_each           = var.virtual_machine_id
   virtual_machine_id = each.value
   location           = var.location
   enabled            = "${terraform.workspace}" == "dev" ? true : false

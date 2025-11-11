@@ -59,8 +59,8 @@ output "identity_purpose" {
 }
 
 output "federated_credential_id" {
-  description = "The resource ID of the federated identity credential (if enabled)"
-  value       = try(var.enable_federated_identity ? azurerm_user_assigned_identity_federated_identity_credential.federated_credential[0].id : null, null)
+  description = "The resource ID of the federated identity credential (if enabled) - Not available in current provider version"
+  value       = null
   sensitive   = false
 }
 

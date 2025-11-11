@@ -10,17 +10,9 @@ resource "azurerm_user_assigned_identity" "User_identity" {
   })
 
   lifecycle {
-    prevent_destroy = var.prevent_destroy
+    prevent_destroy = true
   }
 }
 
-# Federated identity credential for enhanced security
-resource "azurerm_user_assigned_identity_federated_identity_credential" "federated_credential" {
-  count               = var.enable_federated_identity ? 1 : 0
-  name                = "${var.uami_name}-federated-credential"
-  resource_group_name = var.uami_resource_group_name
-  parent_id           = azurerm_user_assigned_identity.User_identity.id
-  audience            = var.federated_audience
-  issuer              = var.federated_issuer
-  subject             = var.federated_subject
-}
+# Note: Federated identity credential resource is not available in this provider version
+# This feature would require azurerm provider version 3.70.0 or later

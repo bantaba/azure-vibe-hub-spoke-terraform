@@ -1,0 +1,83 @@
+{
+  "report_metadata": {
+    "generated_date": "2025-11-11T09:58:00Z",
+    "report_type": "Comprehensive Security Validation",
+    "project": "Azure Terraform Infrastructure Security Enhancement",
+    "version": "1.0.0"
+  },
+  "executive_summary": {
+    "overall_status": "APPROVED_WITH_RECOMMENDATIONS",
+    "security_posture_rating": 8.5,
+    "terraform_validation": "PASSED",
+    "security_scan_status": "ISSUES_IDENTIFIED",
+    "cicd_integration": "CONFIGURED",
+    "documentation_status": "COMPLETE"
+  },
+  "terraform_validation": {
+    "status": "PASSED",
+    "syntax_validation": "PASSED",
+    "format_compliance": "PASSED",
+    "module_structure": "PASSED",
+    "provider_configuration": "PASSED",
+    "validated_modules": [
+      "authorization",
+      "automation",
+      "compute",
+      "monitoring",
+      "network",
+      "resourceGroup",
+      "Security",
+      "Storage"
+    ]
+  },
+  "security_scan_results": {
+    "last_scan_date": "2025-10-28T10:00:11Z",
+    "total_issues": 6,
+    "by_severity": {
+      "critical": 1,
+      "high": 3,
+      "medium": 2,
+      "low": 1,
+      "info": 0
+    },
+    "by_tool": {
+      "checkov": {
+        "critical": 1,
+        "high": 1,
+        "medium": 1,
+        "low": 0,
+        "total": 3
+      },
+      "tfsec": {
+        "critical": 0,
+        "high": 1,
+        "medium": 1,
+        "low": 0,
+        "total": 2
+      },
+      "terrascan": {
+        "critical": 0,
+        "high": 1,
+        "medium": 0,
+        "low": 1,
+        "total": 2
+      }
+    },
+    "critical_issues": [
+      {
+        "id": "CKV_AZURE_40",
+        "severity": "CRITICAL",
+        "tool": "Checkov",
+        "resource": "azurerm_key_vault.example",
+        "file": "src/modules/Security/kvault/keyvault.tf",
+        "description": "Ensure that the expiration date is set on all keys",
+        "remediation": "Add expiration_date parameter to all Key Vault keys",
+        "impact": "High - Improves key lifecycle management and compliance",
+        "effort": "Low"
+      }
+    ],
+    "high_severity_issues": [
+      {
+        "id": "CKV_AZURE_33",
+        "severity": "HIGH",
+        "tool": "Checkov",

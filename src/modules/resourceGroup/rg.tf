@@ -21,7 +21,7 @@
 # - K8s_*: Kubernetes-related resources (future use)
 resource "azurerm_resource_group" "resourceGroup" {
   for_each = var.resource_group_names
-  
+
   # Naming convention: {Workspace}-{Purpose}-rg
   # Example: Dev-CoreInfra-rg, Prod-NetLab-rg
   name     = "${title(terraform.workspace)}-${each.value}-rg"

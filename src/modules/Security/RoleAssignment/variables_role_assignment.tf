@@ -1,7 +1,7 @@
 variable "role_definition_name" {
   type        = string
   description = "The name of the built-in role definition to assign"
-  
+
   validation {
     condition = contains([
       "Owner", "Contributor", "Reader", "User Access Administrator",
@@ -40,9 +40,9 @@ variable "condition_version" {
   type        = string
   default     = null
   description = "The version of the condition syntax"
-  
+
   validation {
-    condition = var.condition_version == null || contains(["1.0", "2.0"], var.condition_version)
+    condition     = var.condition_version == null || contains(["1.0", "2.0"], var.condition_version)
     error_message = "Condition version must be either '1.0' or '2.0'."
   }
 }
@@ -82,9 +82,9 @@ variable "resource_type" {
   type        = string
   default     = "general"
   description = "The type of resource this role assignment is for (keyvault, storage, compute, network)"
-  
+
   validation {
-    condition = contains(["general", "keyvault", "storage", "compute", "network"], var.resource_type)
+    condition     = contains(["general", "keyvault", "storage", "compute", "network"], var.resource_type)
     error_message = "Resource type must be one of: general, keyvault, storage, compute, network."
   }
 }
@@ -93,9 +93,9 @@ variable "principal_type" {
   type        = string
   default     = "ServicePrincipal"
   description = "The type of principal (User, Group, ServicePrincipal)"
-  
+
   validation {
-    condition = contains(["User", "Group", "ServicePrincipal"], var.principal_type)
+    condition     = contains(["User", "Group", "ServicePrincipal"], var.principal_type)
     error_message = "Principal type must be one of: User, Group, ServicePrincipal."
   }
 }

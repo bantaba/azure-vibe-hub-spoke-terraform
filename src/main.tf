@@ -28,23 +28,23 @@ data "http" "public_ip" {
 # Generate random suffix for Key Vault name to ensure global uniqueness
 # Key Vault names must be globally unique across all Azure tenants
 resource "random_id" "kvault" {
-  byte_length = 3  # Generates 6-character hex string (3 bytes = 6 hex chars)
+  byte_length = 3 # Generates 6-character hex string (3 bytes = 6 hex chars)
 }
 
 # Generate random suffix for Storage Account name to ensure global uniqueness
 # Storage Account names must be globally unique across all Azure tenants
 resource "random_id" "sa" {
-  byte_length = 3  # Generates 6-character hex string (3 bytes = 6 hex chars)
+  byte_length = 3 # Generates 6-character hex string (3 bytes = 6 hex chars)
 }
 
 # Generate secure random password for VM admin accounts and service accounts
 # Meets Azure complexity requirements with mixed case, numbers, and special characters
 resource "random_password" "pwd_gen" {
-  min_lower   = 4   # Minimum lowercase letters
-  min_upper   = 4   # Minimum uppercase letters
-  min_numeric = 4   # Minimum numeric characters
-  min_special = 4   # Minimum special characters
-  length      = 25  # Total password length for enhanced security
+  min_lower   = 4  # Minimum lowercase letters
+  min_upper   = 4  # Minimum uppercase letters
+  min_numeric = 4  # Minimum numeric characters
+  min_special = 4  # Minimum special characters
+  length      = 25 # Total password length for enhanced security
 }
 
 #############################################################################
@@ -90,6 +90,7 @@ module "subnet" {
   depends_on = [module.vnet]
   rg_name    = module.rg.rg_name["NetLab"]
   vnet       = module.vnet.vnet_name
+  location   = var.location
   tags       = local.standard_tags
 }
 
@@ -97,11 +98,11 @@ module "subnet" {
 # Implements network security rules with least privilege access principles
 # Includes flow logging for security monitoring and compliance
 module "nsg" {
-  source                        = "./modules/network/nsg"
-  depends_on                    = [module.subnet]
-  nsg_name                      = local.resource_names.nsg_main
-  location                      = module.rg.rg_location["NetLab"]
-  rg_name                       = module.rg.rg_name["NetLab"]
+  source     = "./modules/network/nsg"
+  depends_on = [module.subnet]
+  nsg_name   = local.resource_names.nsg_main
+  location   = module.rg.rg_location["NetLab"]
+  rg_name    = module.rg.rg_name["NetLab"]
   # Associate NSG with all application subnets (excludes AzureBastionSubnet)
   subnet_id                     = [module.subnet.subnet_ids["CachingTierSubnet"], module.subnet.subnet_ids["LabNetSubnet"], module.subnet.subnet_ids["CoreInfraSubnet"], module.subnet.subnet_ids["DB_backendSubnet"], module.subnet.subnet_ids["webFESubnet"]]
   network_watcher_flow_log_name = "${local.resource_names.nsg_main}-flow-logs"
@@ -131,7 +132,7 @@ module "bastion" {
   rg_name               = module.rg.rg_name["NetLab"]
   location              = module.rg.rg_location["NetLab"]
   ip_configuration_name = "${local.resource_names.bastion_main}-config"
-  subnet_id             = module.subnet.subnet_ids["bastionSubnet"]  # Must use AzureBastionSubnet
+  subnet_id             = module.subnet.subnet_ids["bastionSubnet"] # Must use AzureBastionSubnet
   public_ip_address_id  = module.bastion_pip.public_ip_id
   tags                  = local.standard_tags
 }
@@ -150,7 +151,7 @@ module "CoreInfra_sa" {
   depends_on        = [module.rg]
   sa_location       = module.rg.rg_location["CoreInfra"]
   sa_rg_name        = module.rg.rg_name["CoreInfra"]
-  sa_name           = "${local.resource_names.sa_main}${random_id.sa.hex}"  # Append random suffix for uniqueness
+  sa_name           = "${local.resource_names.sa_main}${random_id.sa.hex}" # Append random suffix for uniqueness
   sa_container_name = "${var.project_name}-scripts-${var.environment}"
   tags              = local.standard_tags
 }
@@ -329,12 +330,12 @@ module "testVM" {
 
 
 module "testVM_ext" {
-  source = "./modules/compute/vms/extensions"
-  depends_on = [module.testVM]
-  virtual_machine_id = module.testVM.virtual_machine_ids
-  location = module.rg.rg_location["WebFE"]
-  dsc_server_endpoint = module.aa.dsc_server_endpoint
-  dsc_config = module.aa.dsc_geneva_monitoring_config
+  source                 = "./modules/compute/vms/extensions"
+  depends_on             = [module.testVM]
+  virtual_machine_id     = module.testVM.virtual_machine_ids
+  location               = module.rg.rg_location["WebFE"]
+  dsc_server_endpoint    = module.aa.dsc_server_endpoint
+  dsc_config             = module.aa.dsc_geneva_monitoring_config
   dsc_primary_access_key = module.aa.automation_acct_primary_access_key
   # analytics_workspace_id = module.law.law_id
   # analytics_workspace_key = module.law.law_key
