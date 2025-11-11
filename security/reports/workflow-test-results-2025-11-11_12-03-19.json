@@ -1,0 +1,305 @@
+{
+  "timestamp": "2025-11-11T12:03:19Z",
+  "test_results": [
+    {
+      "timestamp": "2025-11-11T12:02:45.6015487-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Create Test Terraform Files",
+      "message": "Created test Terraform file with security issues"
+    },
+    {
+      "timestamp": "2025-11-11T12:02:45.7376825-08:00",
+      "details": null,
+      "passed": false,
+      "test_name": "Checkov Availability",
+      "message": "Checkov command not found"
+    },
+    {
+      "timestamp": "2025-11-11T12:02:45.9092971-08:00",
+      "details": null,
+      "passed": false,
+      "test_name": "TFSec Availability",
+      "message": "TFSec command not found"
+    },
+    {
+      "timestamp": "2025-11-11T12:02:45.9247165-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Terrascan Availability",
+      "message": "Terrascan command available"
+    },
+    {
+      "timestamp": "2025-11-11T12:02:45.9264967-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Terrascan Configuration",
+      "message": "Configuration file exists"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:17.0884635-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Terrascan Execution",
+      "message": "Terrascan executed and found issues (expected)"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:17.0954449-08:00",
+      "details": null,
+      "passed": false,
+      "test_name": "Terrascan Output Parsing",
+      "message": "Failed to parse Terrascan JSON output: Conversion from JSON failed with error: Error parsing comment. Expected: *, got 1. Path '', line 1, position 5."
+    },
+    {
+      "timestamp": "2025-11-11T12:03:17.1025304-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Unified SAST Script",
+      "message": "SAST execution script exists"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:17.8773155-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Unified SAST Report Generation",
+      "message": "Generated 1 reports"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4224525-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Report Aggregation",
+      "message": "Successfully aggregated security reports"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4269731-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "GitHub Actions Workflow File",
+      "message": "Workflow file exists"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4307308-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "GitHub Actions Job Structure",
+      "message": "All required jobs present"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4327085-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "GitHub Actions Security Tools",
+      "message": "All security tools integrated"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4376443-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "GitHub Actions Security Gates",
+      "message": "Security gate logic implemented"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4421476-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Azure DevOps Pipeline Files",
+      "message": "Found 2 pipeline files"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4451135-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Azure DevOps Security Integration (azure-pipelines.yml)",
+      "message": "Security integration found"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.471103-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Azure DevOps Security Integration (azure-pipelines-release.yml)",
+      "message": "Security integration found"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4747797-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Git Hooks Directory",
+      "message": "Git hooks directory exists"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4763228-08:00",
+      "details": null,
+      "passed": false,
+      "test_name": "Pre-commit Hook File",
+      "message": "Pre-commit hook not found"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4818393-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Hook Installation Scripts",
+      "message": "Found 5 hook-related scripts"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4947938-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Security Gate Logic (C:0 H:0 M:2 L:1)",
+      "message": "Gate logic correct: PASS"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4965604-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Security Gate Logic (C:1 H:0 M:0 L:0)",
+      "message": "Gate logic correct: FAIL"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.4989808-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Security Gate Logic (C:0 H:3 M:1 L:2)",
+      "message": "Gate logic correct: FAIL"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.5029683-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Security Gate Logic (C:0 H:0 M:0 L:0)",
+      "message": "Gate logic correct: PASS"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.511698-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Create Test Terraform Files",
+      "message": "Created test Terraform file with security issues"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.5142843-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Workflow Step 1 - Code Creation",
+      "message": "Test Terraform code created"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:18.9775804-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Workflow Step 2 - Security Scanning",
+      "message": "Security scans completed"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0569018-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Workflow Step 3 - Report Aggregation",
+      "message": "Reports aggregated successfully"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0595661-08:00",
+      "details": null,
+      "passed": false,
+      "test_name": "Workflow Step 4 - Output Validation",
+      "message": "Missing outputs: security\\reports\\test-data/reports/aggregated"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0634099-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Script Integration - run-sast-scan.ps1",
+      "message": "Script exists and accessible"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0653586-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Script Integration - security-report-aggregator.ps1",
+      "message": "Script exists and accessible"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0694456-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Script Integration - launch-security-aggregation.ps1",
+      "message": "Script exists and accessible"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0730649-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Configuration Integration",
+      "message": "All configuration files present"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.0974574-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Error Handling - Missing Tools",
+      "message": "Script handled missing tools gracefully"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.1178772-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Error Handling - Invalid Config",
+      "message": "Invalid JSON properly rejected"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.5617004-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Error Handling - Missing Source",
+      "message": "Script handled missing source directory"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.5717027-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Report Format - json",
+      "message": "Successfully generated json report"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.5755056-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Report Format - html",
+      "message": "Successfully generated html report"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.5791486-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Report Format - markdown",
+      "message": "Successfully generated markdown report"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.6404618-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Report Validation - JSON",
+      "message": "JSON report generation validated"
+    },
+    {
+      "timestamp": "2025-11-11T12:03:19.6743546-08:00",
+      "details": null,
+      "passed": true,
+      "test_name": "Cleanup Test Data",
+      "message": "Test data directory removed"
+    }
+  ],
+  "test_categories": {
+    "end_to_end": 14,
+    "ci_pipeline": 10,
+    "sast_integration": 9
+  },
+  "summary": {
+    "failed_tests": 5,
+    "duration_seconds": 34.0934715,
+    "passed_tests": 36,
+    "total_tests": 41,
+    "success_rate": 87.8
+  },
+  "test_environment": "local"
+}
