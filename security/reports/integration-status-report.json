@@ -1,34 +1,32 @@
 {
-  "timestamp": "2025-10-28 11:03:19",
   "component_status": {
-    "local_components": {
-      "missing_components": [
-        "docs/security/README.md"
-      ],
-      "total_components": 11,
-      "valid_components": 10,
-      "integration_score": 91.0
-    },
     "github_actions": {
-      "reporting_configured": true,
       "security_gates_configured": true,
+      "reporting_configured": true,
       "sast_tools_configured": true,
-      "workflow_exists": true,
-      "integration_score": 100
+      "integration_score": 100,
+      "workflow_exists": true
+    },
+    "local_components": {
+      "valid_components": 11,
+      "total_components": 11,
+      "integration_score": 100.0,
+      "missing_components": []
     },
     "azure_devops": {
       "security_gates_configured": false,
+      "pipeline_exists": true,
       "reporting_configured": true,
       "sast_tools_configured": true,
-      "integration_score": 75,
-      "pipeline_exists": true
+      "integration_score": 75
     }
   },
+  "timestamp": "2025-11-11 11:28:01",
   "overall_status": "excellent",
   "recommendations": [],
   "integration_scores": {
-    "local_components": 91.0,
     "github_actions": 100,
+    "local_components": 100.0,
     "azure_devops": 75
   }
 }

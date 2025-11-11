@@ -70,6 +70,8 @@ A comprehensive, production-ready security framework for Azure Terraform infrast
 | **[📖 User Guide](docs/USER_GUIDE.md)** | Comprehensive usage guide | Daily users |
 | **[🏗️ Project Overview](docs/PROJECT_OVERVIEW.md)** | Architecture and features | Technical leads |
 | **[🔧 Architecture](docs/ARCHITECTURE.md)** | Technical architecture | Architects/Engineers |
+| **[✅ Final Validation](docs/FINAL_VALIDATION_SUMMARY.md)** | Production readiness validation | Stakeholders |
+| **[🔒 Security Documentation](docs/security/README.md)** | Security policies and procedures | Security teams |
 | **[🔗 Integration System](scripts/integration/README.md)** | Integration details | DevOps engineers |
 
 ## 🎯 Common Use Cases
