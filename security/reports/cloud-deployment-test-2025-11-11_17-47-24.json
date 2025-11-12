@@ -1,0 +1,145 @@
+{
+  "summary": {
+    "duration_seconds": 7.5009483,
+    "failed_tests": 10,
+    "success_rate": 54.5,
+    "total_tests": 22,
+    "passed_tests": 12
+  },
+  "timestamp": "2025-11-11T17:47:24Z",
+  "test_type": "cloud_deployment_readiness",
+  "test_results": [
+    {
+      "Message": "Version 1.13.4 installed",
+      "Timestamp": "2025-11-11T17:47:17.7533538-08:00",
+      "Test": "Terraform Installation",
+      "Passed": true
+    },
+    {
+      "Message": "Main configuration found",
+      "Timestamp": "2025-11-11T17:47:17.7616909-08:00",
+      "Test": "Terraform Source Files",
+      "Passed": true
+    },
+    {
+      "Message": "All required files present",
+      "Timestamp": "2025-11-11T17:47:17.7644126-08:00",
+      "Test": "Required Terraform Files",
+      "Passed": true
+    },
+    {
+      "Message": "Initialization successful",
+      "Timestamp": "2025-11-11T17:47:21.0751776-08:00",
+      "Test": "Terraform Init",
+      "Passed": true
+    },
+    {
+      "Message": "Configuration is valid",
+      "Timestamp": "2025-11-11T17:47:23.9849746-08:00",
+      "Test": "Terraform Validation",
+      "Passed": true
+    },
+    {
+      "Message": "Not installed",
+      "Timestamp": "2025-11-11T17:47:24.1449681-08:00",
+      "Test": "SAST Tool: Checkov (IaC Security Scanner)",
+      "Passed": false
+    },
+    {
+      "Message": "Installed and available",
+      "Timestamp": "2025-11-11T17:47:24.1531449-08:00",
+      "Test": "SAST Tool: Terrascan (Policy as Code)",
+      "Passed": true
+    },
+    {
+      "Message": "Not installed",
+      "Timestamp": "2025-11-11T17:47:24.3353657-08:00",
+      "Test": "SAST Tool: TFSec (Terraform Security Scanner)",
+      "Passed": false
+    },
+    {
+      "Message": "Module missing main.tf",
+      "Timestamp": "2025-11-11T17:47:24.3418998-08:00",
+      "Test": "Module: resourceGroup",
+      "Passed": false
+    },
+    {
+      "Message": "Module missing main.tf",
+      "Timestamp": "2025-11-11T17:47:24.3447068-08:00",
+      "Test": "Module: network",
+      "Passed": false
+    },
+    {
+      "Message": "Module missing main.tf",
+      "Timestamp": "2025-11-11T17:47:24.3471461-08:00",
+      "Test": "Module: Security",
+      "Passed": false
+    },
+    {
+      "Message": "Module missing main.tf",
+      "Timestamp": "2025-11-11T17:47:24.3500413-08:00",
+      "Test": "Module: compute",
+      "Passed": false
+    },
+    {
+      "Message": "Module missing main.tf",
+      "Timestamp": "2025-11-11T17:47:24.3518673-08:00",
+      "Test": "Module: monitoring",
+      "Passed": false
+    },
+    {
+      "Message": "Azure backend configured",
+      "Timestamp": "2025-11-11T17:47:24.361276-08:00",
+      "Test": "Backend Configuration",
+      "Passed": true
+    },
+    {
+      "Message": "AzureRM provider configured",
+      "Timestamp": "2025-11-11T17:47:24.3636074-08:00",
+      "Test": "Azure Provider",
+      "Passed": true
+    },
+    {
+      "Message": "Script not found",
+      "Timestamp": "2025-11-11T17:47:24.3660744-08:00",
+      "Test": "Script: deploy.ps1",
+      "Passed": false
+    },
+    {
+      "Message": "Script not found",
+      "Timestamp": "2025-11-11T17:47:24.3673829-08:00",
+      "Test": "Script: validate.ps1",
+      "Passed": false
+    },
+    {
+      "Message": "Pipeline configuration exists",
+      "Timestamp": "2025-11-11T17:47:24.3695719-08:00",
+      "Test": "Pipeline: terraform-security-scan.yml",
+      "Passed": true
+    },
+    {
+      "Message": "Pipeline configuration exists",
+      "Timestamp": "2025-11-11T17:47:24.3707625-08:00",
+      "Test": "Pipeline: azure-pipelines.yml",
+      "Passed": true
+    },
+    {
+      "Message": "File exists",
+      "Timestamp": "2025-11-11T17:47:24.3751021-08:00",
+      "Test": "Documentation: README.md",
+      "Passed": true
+    },
+    {
+      "Message": "File not found",
+      "Timestamp": "2025-11-11T17:47:24.37688-08:00",
+      "Test": "Documentation: docs/setup/README.md",
+      "Passed": false
+    },
+    {
+      "Message": "File exists",
+      "Timestamp": "2025-11-11T17:47:24.3787492-08:00",
+      "Test": "Documentation: docs/security/README.md",
+      "Passed": true
+    }
+  ]
+}
