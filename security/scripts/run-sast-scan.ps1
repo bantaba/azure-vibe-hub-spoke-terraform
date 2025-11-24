@@ -10,6 +10,7 @@ param(
     [switch]$SkipCheckov = $false,
     [switch]$SkipTFSec = $false,
     [switch]$SkipTerrascan = $false,
+    [switch]$SkipTerraformCompliance = $false,
     [string]$OutputFormat = "json"
 )
 

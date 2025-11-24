@@ -415,3 +415,103 @@ For additional help:
 - Review configuration files in `security/sast-tools/`
 - Examine log files in `security/reports/` for detailed error information
 - Use the `-Verbose` flag for detailed execution information
+
+### 🔐
+ Policy-as-Code Testing
+
+#### `run-terraform-compliance.ps1`
+**NEW** - BDD-style policy-as-code testing using Terraform Compliance framework.
+
+**Features:**
+- Policy-as-code testing with Gherkin syntax
+- Automated Terraform plan generation
+- Multiple policy feature files support
+- Detailed compliance reporting
+- CI/CD integration ready
+- Configurable failure thresholds
+
+**Usage:**
+```powershell
+# Run all policy tests
+.\run-terraform-compliance.ps1
+
+# Test specific feature file
+.\run-terraform-compliance.ps1 -Features "azure_security.feature"
+
+# Use existing Terraform plan
+.\run-terraform-compliance.ps1 -PlanFile "tfplan.json" -GeneratePlan:$false
+
+# Verbose output for debugging
+.\run-terraform-compliance.ps1 -Verbose
+
+# Continue on failure (for reporting)
+.\run-terraform-compliance.ps1 -FailOnError:$false
+```
+
+**Parameters:**
+- `-PlanFile`: Path to Terraform plan JSON file
+- `-PoliciesPath`: Path to policy feature files (default: "security/policies")
+- `-ReportsPath`: Path for test reports (default: "security/reports")
+- `-SourcePath`: Path to Terraform source (default: "src")
+- `-GeneratePlan`: Auto-generate Terraform plan (default: true)
+- `-Verbose`: Enable verbose output
+- `-FailOnError`: Exit with error code on test failure (default: true)
+- `-Features`: Specific feature file to test (optional)
+
+#### `install-terraform-compliance.ps1`
+**NEW** - Installation script for Terraform Compliance framework.
+
+**Features:**
+- Automated installation via pip
+- Python and pip prerequisite checking
+- Version verification
+- Force reinstall option
+- Latest version installation
+
+**Usage:**
+```powershell
+# Install Terraform Compliance
+.\install-terraform-compliance.ps1
+
+# Force reinstall to latest version
+.\install-terraform-compliance.ps1 -Force
+
+# Verbose installation output
+.\install-terraform-compliance.ps1 -Verbose
+```
+
+**Parameters:**
+- `-Force`: Force reinstall even if already installed
+- `-Verbose`: Show detailed installation output
+
+### Policy Files
+
+Policy-as-code tests are located in `security/policies/`:
+
+- **azure_security.feature**: Azure security best practices
+  - Storage account security (HTTPS, TLS, network rules)
+  - Key Vault security (network ACLs, expiration dates)
+  - Virtual machine security (managed disks, encryption)
+  - Network Security Group rules
+  - Managed identity requirements
+
+- **network_security.feature**: Network security controls
+  - DDoS protection
+  - NSG attachments
+  - Application Gateway WAF
+  - Azure Bastion deployment
+  - Private endpoints
+  - VPN/ExpressRoute encryption
+  - Network Watcher and flow logs
+
+- **compliance.feature**: Compliance and governance
+  - Resource naming conventions
+  - Approved Azure regions
+  - Diagnostic settings and retention
+  - Backup policies
+  - Soft delete and purge protection
+  - Auditing and threat detection
+  - Azure Policy assignments
+
+See `security/policies/README.md` for detailed documentation on writing and maintaining policy tests.
+
