@@ -68,6 +68,15 @@ Compliance and governance requirements:
 .\security\scripts\run-terraform-compliance.ps1
 ```
 
+## Examples
+
+### Basic Policy Test Execution
+
+```powershell
+# Run all policy tests with default settings
+.\security\scripts\run-terraform-compliance.ps1
+```
+
 ### Run Specific Feature File
 
 ```powershell

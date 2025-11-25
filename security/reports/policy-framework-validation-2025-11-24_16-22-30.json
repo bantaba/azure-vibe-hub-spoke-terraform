@@ -1,0 +1,103 @@
+{
+  "summary": {
+    "policy_categories": {
+      "Security": 16,
+      "Network": 12,
+      "Compliance": 17
+    },
+    "passed_tests": 16,
+    "total_tests": 17,
+    "duration_seconds": 0.2684446,
+    "total_policy_scenarios": 45,
+    "failed_tests": 1
+  },
+  "test_type": "policy_framework_validation",
+  "test_results": [
+    {
+      "Message": "File exists",
+      "Test": "Installation Script",
+      "Passed": true
+    },
+    {
+      "Message": "File exists",
+      "Test": "Execution Script",
+      "Passed": true
+    },
+    {
+      "Message": "Directory exists",
+      "Test": "Policies Directory",
+      "Passed": true
+    },
+    {
+      "Message": "16 scenarios found",
+      "Test": "Policy File: azure_security.feature",
+      "Passed": true
+    },
+    {
+      "Message": "12 scenarios found",
+      "Test": "Policy File: network_security.feature",
+      "Passed": true
+    },
+    {
+      "Message": "17 scenarios found",
+      "Test": "Policy File: compliance.feature",
+      "Passed": true
+    },
+    {
+      "Message": "Valid BDD structure",
+      "Test": "Gherkin Syntax: azure_security.feature",
+      "Passed": true
+    },
+    {
+      "Message": "Valid BDD structure",
+      "Test": "Gherkin Syntax: network_security.feature",
+      "Passed": true
+    },
+    {
+      "Message": "Valid BDD structure",
+      "Test": "Gherkin Syntax: compliance.feature",
+      "Passed": true
+    },
+    {
+      "Message": "Complete documentation",
+      "Test": "Policy Documentation",
+      "Passed": true
+    },
+    {
+      "Message": "Valid PowerShell",
+      "Test": "Script Syntax: install-terraform-compliance.ps1",
+      "Passed": true
+    },
+    {
+      "Message": "Valid PowerShell",
+      "Test": "Script Syntax: run-terraform-compliance.ps1",
+      "Passed": true
+    },
+    {
+      "Message": "Python found: Python 3.14.0",
+      "Test": "Python Installation",
+      "Passed": true
+    },
+    {
+      "Message": "Not installed (run install script)",
+      "Test": "Terraform Compliance",
+      "Passed": false
+    },
+    {
+      "Message": "45 scenarios across 3 categories",
+      "Test": "Total Policy Scenarios",
+      "Passed": true
+    },
+    {
+      "Message": "Terraform Compliance integrated",
+      "Test": "SAST Integration",
+      "Passed": true
+    },
+    {
+      "Message": "All files follow BDD format",
+      "Test": "Policy File Structure",
+      "Passed": true
+    }
+  ],
+  "timestamp": "2025-11-24T16:22:30Z"
+}
